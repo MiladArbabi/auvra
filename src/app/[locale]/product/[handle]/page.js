@@ -1,4 +1,5 @@
 import {sf} from '@/lib/shopify';
+import {checkout} from '@/app/actions/checkout';
 
 const QUERY = /* GraphQL */ `
   query ProductByHandle($handle: String!) {
@@ -46,9 +47,23 @@ export default async function ProductPage({params: {locale, handle}}) {
           <h1 className="text-2xl font-semibold">{p.title}</h1>
           {price && <p className="mt-2 text-lg">{price} {currency}</p>}
           <div className="prose mt-4" dangerouslySetInnerHTML={{__html: p.descriptionHtml || ''}} />
-          <div className="mt-6">
-            <button className="px-4 py-2 rounded-xl bg-black text-white" disabled>Checkout (coming soon)</button>
-          </div>
+          <form action={checkout} className="mt-6 space-x-3">
+            <input type="hidden" name="variantId" value={firstVar?.id || ''} />
+            <input
+              name="quantity"
+              type="number"
+              min="1"
+              defaultValue="1"
+              className="border rounded-xl px-3 py-2 w-24"
+              aria-label="Quantity"
+            />
+            <button
+              className="px-4 py-2 rounded-xl bg-black text-white disabled:opacity-50"
+              disabled={!firstVar?.id}
+            >
+              Checkout
+            </button>
+          </form>
         </div>
       </div>
     </main>
