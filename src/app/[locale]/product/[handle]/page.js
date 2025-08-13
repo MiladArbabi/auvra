@@ -1,3 +1,4 @@
+// src/app/[locale]/product/[handle]/page.js
 import {sf} from '@/lib/shopify';
 import {checkout} from '@/app/actions/checkout';
 
