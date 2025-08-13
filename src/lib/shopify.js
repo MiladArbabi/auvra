@@ -1,9 +1,10 @@
-const domain = process.env.SHOPIFY_STORE_DOMAIN;
-const token  = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
-const apiVer = process.env.SHOPIFY_API_VERSION || '2024-07';
+const domain   = process.env.SHOPIFY_STORE_DOMAIN;
+const pubToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+const prvToken = process.env.SHOPIFY_STOREFRONT_PRIVATE_TOKEN;
+const apiVer   = process.env.SHOPIFY_API_VERSION || '2024-07';
 
-if (!domain || !token) {
-  console.warn('[shopify] Missing SHOPIFY_STORE_DOMAIN or SHOPIFY_STOREFRONT_ACCESS_TOKEN');
+if (!domain || (!prvToken && !pubToken)) {
+  console.warn('[shopify] Ensure SHOPIFY_STORE_DOMAIN and a Storefront token (.env.local)');
 }
 
 const endpoint = `https://${domain}/api/${apiVer}/graphql.json`;
@@ -19,7 +20,9 @@ export async function sf(query, variables = {}) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Shopify-Storefront-Access-Token': token
+      ...(prvToken
+        ? { 'Shopify-Storefront-Private-Token': prvToken }
+        : { 'X-Shopify-Storefront-Access-Token': pubToken })
     },
     body: JSON.stringify({ query, variables }),
     // avoid stale responses while developing

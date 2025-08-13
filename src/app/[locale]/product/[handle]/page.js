@@ -13,7 +13,8 @@ const QUERY = /* GraphQL */ `
   }
 `;
 
-export default async function ProductPage({params: {locale, handle}}) {
+export default async function ProductPage({params}) {
+  const { locale, handle } = await params;
   const data = await sf(QUERY, {handle});
   const p = data?.product;
   if (!p) return <div className="p-8">Not found.</div>;
