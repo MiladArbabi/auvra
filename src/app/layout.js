@@ -4,16 +4,13 @@ export const metadata = {
   description: 'EU-compliant clean beauty with fast shipping in Nordics.',
   alternates: {
     canonical: '/',
-    languages: {
-      en: '/en',
-      sv: '/sv'
-    }
+    languages: { en: '/en', sv: '/sv' }
   }
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html>
+    <html lang="en">
       <body>{children}</body>
     </html>
   );
