@@ -1,13 +1,11 @@
-'use client';
-import {NextIntlClientProvider} from 'next-intl';
+import Providers from '@/components/Providers';
 import en from '@/messages/en.json';
 import sv from '@/messages/sv.json';
 
-export default function LocaleLayout({children, params: {locale}}) {
+export default async function LocaleLayout({children, params}) {
+  const {locale} = await params; // params is a Promise in Next 15
   const messages = locale === 'sv' ? sv : en;
-  return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
-      {children}
-    </NextIntlClientProvider>
-  );
+
+  // Keep <html>/<body> only in ROOT layout; this layout just provides context
+  return <Providers locale={locale} messages={messages}>{children}</Providers>;
 }
