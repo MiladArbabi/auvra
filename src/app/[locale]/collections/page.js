@@ -1,4 +1,6 @@
+// src/app/[locale]/collections/page.js
 import Link from 'next/link';
+import Image from 'next/image';
 import {sf} from '@/lib/shopify';
 
 const QUERY = /* GraphQL */ `
@@ -8,7 +10,7 @@ const QUERY = /* GraphQL */ `
         node {
           handle
           title
-          image { url altText }
+          image { url altText width height }
         }
       }
     }
@@ -25,9 +27,15 @@ export default async function Collections({ params }) {
       <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {items.map(col => (
           <Link key={col.handle} href={`/${locale}/collections/${col.handle}`} className="block border rounded-xl p-4 hover:shadow-sm">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             {col.image?.url && (
-              <img src={col.image.url} alt={col.image.altText || col.title} className="rounded-lg mb-3" />
+              <Image
+                src={col.image.url}
+                alt={col.image.altText || col.title}
+                width={col.image.width || 800}
+                height={col.image.height || 800}
+                className="rounded-lg mb-3"
+                sizes="(min-width:1024px) 25vw, (min-width:768px) 33vw, 50vw"
+              />
             )}
             <h3 className="font-medium">{col.title}</h3>
           </Link>

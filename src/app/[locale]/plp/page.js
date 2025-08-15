@@ -1,4 +1,6 @@
+// src/app/[locale]/plp/page.js
 import Link from 'next/link';
+import Image from 'next/image';
 import {sf} from '@/lib/shopify';
 
 const QUERY = /* GraphQL */ `
@@ -8,7 +10,7 @@ const QUERY = /* GraphQL */ `
         node {
           handle
           title
-          featuredImage { url altText }
+          featuredImage { url altText width height }
           priceRange { minVariantPrice { amount currencyCode } }
         }
       }
@@ -24,9 +26,15 @@ export default async function PLP({ params }) {
     <main className="p-8 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {items.map(p => (
         <Link key={p.handle} href={`/${locale}/product/${p.handle}`} className="block border rounded-xl p-4 hover:shadow-sm">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           {p.featuredImage?.url && (
-            <img src={p.featuredImage.url} alt={p.featuredImage.altText || p.title} className="rounded-lg mb-3" />
+            <Image
+              src={p.featuredImage.url}
+              alt={p.featuredImage.altText || p.title}
+              width={p.featuredImage.width || 800}
+              height={p.featuredImage.height || 800}
+              className="rounded-lg mb-3"
+              sizes="(min-width:1024px) 25vw, (min-width:768px) 33vw, 50vw"
+            />
           )}
           <h3 className="font-medium">{p.title}</h3>
           <p className="text-sm mt-1">
