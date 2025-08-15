@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    allowedDevOrigins: ['http://localhost:3000', 'http://192.168.0.31:3000']
-  },
+  // allow LAN access without warnings while developing (Next 15+)
+  allowedDevOrigins: ['localhost', '192.168.0.31'],
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'cdn.shopify.com' },
