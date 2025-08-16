@@ -1,3 +1,4 @@
+import {Suspense} from 'react';
 import {ConsentProvider} from '@/components/consent/ConsentContext';
 import ConsentBanner from '@/components/consent/ConsentBanner';
 import AnalyticsLoader from '@/components/analytics/AnalyticsLoader';
@@ -13,7 +14,7 @@ export default function RootLayout({ children }) {
         {/* analytics + consent */}
         <script></script>
         <ConsentProvider>
-          <AnalyticsLoader />
+          <Suspense fallback={null}><AnalyticsLoader /></Suspense>
           <ConsentBanner />
           {children}
         </ConsentProvider>
