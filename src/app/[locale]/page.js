@@ -8,6 +8,7 @@ export default function Home() {
       <div className="mx-auto max-w-3xl">
         <h1 className="text-3xl font-semibold">{t('title')}</h1>
         <p className="mt-2 text-neutral-600">{t('subtitle')}</p>
+        <div class="mt-6"><!-- market switcher --><div id="market-switch"></div></div>
         <div className="mt-6 flex gap-4">
           <a href={`/${locale}/plp`} className="underline">All products</a>
           <a href={`/${locale}/collections`} className="underline">Collections</a>

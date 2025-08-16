@@ -1,28 +1,46 @@
-// src/app/[locale]/product/[handle]/page.js
+import Image from 'next/image';
 import {sf} from '@/lib/shopify';
 import {checkout} from '@/app/actions/checkout';
+import {getCountry, localeToLanguage, localeTag, formatMoney} from '@/lib/market';
+import VatNote from '@/components/VatNote';
+import CountrySwitcher from '@/components/CountrySwitcher';
 
 const QUERY = /* GraphQL */ `
-  query ProductByHandle($handle: String!) {
+  query ProductByHandle(
+    $handle: String!,
+    $country: CountryCode,
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
     product(handle: $handle) {
       id title handle description descriptionHtml availableForSale
-      featuredImage { url altText }
+      featuredImage { url altText width height }
       seo { title description }
-      variants(first: 1) { edges { node { id availableForSale price { amount currencyCode } } } }
+      variants(first: 1) { edges { node {
+        id availableForSale price { amount currencyCode }
+      }}}
     }
   }
 `;
 
 export default async function ProductPage({params}) {
   const { locale, handle } = await params;
-  const data = await sf(QUERY, {handle});
+
+  const country  = getCountry('SE');
+  const language = localeToLanguage(locale);
+  const tag      = localeTag(locale, country);
+
+  const data = await sf(QUERY, {handle, country, language});
   const p = data?.product;
   if (!p) return <div className="p-8">Not found.</div>;
 
   const firstVar = p.variants?.edges?.[0]?.node;
-  const price = firstVar?.price?.amount;
+  const amount   = firstVar?.price?.amount;
   const currency = firstVar?.price?.currencyCode || 'EUR';
-  const inStock = (firstVar?.availableForSale ?? p.availableForSale) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
+  const priceFmt = amount ? formatMoney(amount, currency, tag) : null;
+
+  const inStock = (firstVar?.availableForSale ?? p.availableForSale)
+    ? 'https://schema.org/InStock'
+    : 'https://schema.org/OutOfStock';
   const url = `https://auvra.shop/${locale}/product/${p.handle}`;
 
   const ld = {
@@ -32,7 +50,7 @@ export default async function ProductPage({params}) {
     image: p.featuredImage?.url ? [p.featuredImage.url] : undefined,
     description: p.seo?.description || p.description,
     sku: p.id?.split('/')?.pop(),
-    offers: { '@type': 'Offer', url, priceCurrency: currency, price: price ?? undefined, availability: inStock }
+    offers: { '@type': 'Offer', url, priceCurrency: currency, price: amount ?? undefined, availability: inStock }
   };
 
   return (
@@ -41,13 +59,24 @@ export default async function ProductPage({params}) {
       <div className="mx-auto max-w-5xl grid gap-8 md:grid-cols-2">
         <div>
           {p.featuredImage?.url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={p.featuredImage.url} alt={p.featuredImage.altText || p.title} className="w-full rounded-xl" />
+            <Image
+              src={p.featuredImage.url}
+              alt={p.featuredImage.altText || p.title}
+              width={p.featuredImage.width || 800}
+              height={p.featuredImage.height || 800}
+              className="w-full rounded-xl"
+            />
           ) : <div className="aspect-square bg-gray-100 rounded-xl" />}
         </div>
         <div>
           <h1 className="text-2xl font-semibold">{p.title}</h1>
-          {price && <p className="mt-2 text-lg">{price} {currency}</p>}
+          <div className="mt-2"><CountrySwitcher current={country} /></div>
+          {priceFmt && (
+            <>
+              <p className="mt-2 text-lg">{priceFmt}</p>
+              <VatNote country={country} />
+            </>
+          )}
           <div className="prose mt-4" dangerouslySetInnerHTML={{__html: p.descriptionHtml || ''}} />
           <form action={checkout} className="mt-6 space-x-3">
             <input type="hidden" name="variantId" value={firstVar?.id || ''} />
