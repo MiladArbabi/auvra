@@ -25,7 +25,7 @@ const QUERY = /* GraphQL */ `
 export default async function ProductPage({params}) {
   const { locale, handle } = await params;
 
-  const country  = getCountry('SE');
+  const country = await getCountry('SE');
   const language = localeToLanguage(locale);
   const tag      = localeTag(locale, country);
 

@@ -1,38 +1,29 @@
-import {cookies, headers} from 'next/headers';
+import {cookies} from 'next/headers';
 
-// Minimal EU list (27)
-const EU = new Set([
-  'AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT',
-  'LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE'
-]);
-
-export function getCountry(defaultCountry = 'SE') {
-  // cookie from middleware or user choice
-  const c = cookies().get('shopifyCountry')?.value;
-  if (c && /^[A-Z]{2}$/.test(c)) return c;
-
-  // (optional) header hint if running on edge/platforms that set it
-  const h = headers().get('x-vercel-ip-country') || headers().get('x-country');
-  if (h && /^[A-Z]{2}$/.test(h)) return h;
-
-  return defaultCountry;
+// --- server-only helper (await cookies())
+export async function getCountry(fallback = 'SE') {
+  const jar = await cookies();
+  const v = jar.get('shopifyCountry')?.value;
+  return (v || fallback).toUpperCase();
 }
 
-export function localeToLanguage(locale = 'en') {
-  return String(locale).slice(0, 2).toUpperCase(); // 'en' -> 'EN', 'sv' -> 'SV'
+// --- EU utility (keep simple list)
+const EU = new Set(['SE','DK','NO','FI','IS','DE','FR','ES','IT','NL','BE','AT','IE','PT','GR','PL','CZ','SK','HU','SI','HR','RO','BG','EE','LV','LT','LU','MT','CY']);
+export function isEU(code) { return EU.has(String(code||'').toUpperCase()); }
+
+// --- Language mapping for Storefront API
+export function localeToLanguage(locale) {
+  return String(locale).toLowerCase() === 'sv' ? 'SV' : 'EN';
 }
 
+// --- BCP47 tag (for Intl.NumberFormat)
 export function localeTag(locale, country) {
-  // e.g. 'sv' + 'SE' -> 'sv-SE'
-  const l = String(locale || 'en').slice(0, 2);
-  const c = (country || 'SE').toUpperCase();
-  return `${l}-${c}`;
+  const lang = String(locale).toLowerCase() === 'sv' ? 'sv' : 'en';
+  const c = String(country||'SE').toUpperCase();
+  return `${lang}-${c}`;
 }
 
-export function isEU(country) {
-  return EU.has(String(country || '').toUpperCase());
-}
-
+// --- Currency formatter
 export function formatMoney(amount, currency, tag) {
   const n = Number(amount);
   if (!isFinite(n)) return '';

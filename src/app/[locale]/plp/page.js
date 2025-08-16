@@ -23,7 +23,7 @@ const QUERY = /* GraphQL */ `
 
 export default async function PLP({ params }) {
   const { locale } = await params;
-  const country  = getCountry('SE');
+  const country = await getCountry('SE');
   const language = localeToLanguage(locale);
   const tag      = localeTag(locale, country);
 

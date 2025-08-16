@@ -53,7 +53,7 @@ export default async function CollectionPage({ params, searchParams }) {
   const { locale, handle } = await params;
   const sp = await searchParams;
 
-  const country  = getCountry('SE');
+  const country = await getCountry('SE');
   const language = localeToLanguage(locale);
   const tag      = localeTag(locale, country);
 
