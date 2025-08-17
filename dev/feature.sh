@@ -135,7 +135,7 @@ Closes #$issue"
   [[ -n "$pr_url" ]] || { echo "Could not determine PR URL. gh output was:"; echo "$out"; exit 1; }
   echo "PR: $pr_url"
 
-  gh pr merge --squash --auto "$pr_url"
+  gh pr merge --squash --auto "$pr_url" || true
   echo "Set to auto-merge when CI passes. Once merged, the issue will close automatically."
   echo "Tip: watch checks:"
   echo "  gh pr checks $pr_url --watch"

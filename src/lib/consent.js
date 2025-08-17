@@ -1,3 +1,4 @@
+// src/lib/consent.js
 export const CONSENT_COOKIE = 'consent_prefs';
 
 function readRaw() {
