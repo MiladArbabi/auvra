@@ -103,9 +103,16 @@ ship_feature() {
 
   git add -A
   local msg; msg="$(conventionalize_msg "$msg_raw")"
-  git commit -m "$msg
+  if git diff --cached --quiet; then
+    echo "No staged changes. Creating an empty commit so a PR can open…"
+    git commit --allow-empty -m "$msg
 
-Closes #$issue" || echo "Nothing to commit, continuing…"
+Refs #$issue"
+  else
+    git commit -m "$msg
+
+Closes #$issue"
+  fi
   local branch; branch="$(current_branch)"
   git push -u origin "$branch"
 
