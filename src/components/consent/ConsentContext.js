@@ -1,6 +1,11 @@
 'use client';
 
 import {createContext, useContext, useEffect, useState} from 'react';
+import {
+  readConsent as readConsentCookie,
+  writeConsent as writeConsentCookie,
+  CONSENT_COOKIE
+} from '@/lib/consent';
 
 const ConsentContext = createContext({
   consent: null,     // { analytics: bool, marketing: bool } | null (undecided)
@@ -10,31 +15,30 @@ const ConsentContext = createContext({
   setOpen: () => {}
 });
 
-function readConsent() {
-  try {
-    const m = document.cookie.match(/(?:^|;\\s*)consent=([^;]+)/);
-    if (!m) return null;
-    return JSON.parse(decodeURIComponent(m[1]));
-  } catch { return null; }
-}
-
-function writeConsent(obj) {
-  document.cookie = `consent=${encodeURIComponent(JSON.stringify(obj))}; Path=/; Max-Age=${60*60*24*180}`;
-}
-
 export function ConsentProvider({children}) {
   const [consent, setConsent] = useState(null);
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    setConsent(readConsent());
+    setConsent(readConsentCookie());
     setReady(true);
   }, []);
 
+  useEffect(() => {
+  if (process.env.NODE_ENV !== 'production') {
+    window.__consent = {
+      read: readConsentCookie,
+      write: (obj) => writeConsentCookie({ ...obj, ts: Date.now() }),
+      clear: () => { document.cookie = 'consent_prefs=; Max-Age=0; Path=/'; }
+    };
+    console.info('[consent] dev helpers on window.__consent');
+  }
+}, []);
+
   function save(next) {
     setConsent(next);
-    writeConsent(next);
+    writeConsentCookie(next);
   }
 
   return (

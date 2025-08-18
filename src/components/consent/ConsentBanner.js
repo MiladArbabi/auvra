@@ -18,17 +18,35 @@ export default function ConsentBanner() {
 
   if (!show) return null;
 
-  function acceptAll() {
-    save({analytics: true, marketing: true, ts: Date.now()});
-    location.reload();
+function acceptAll(e) {
+    try {
+      e?.preventDefault();
+      save({ analytics: true, marketing: true, ts: Date.now() });
+      console.info('[consent] acceptAll -> saved, reloading');
+      location.reload();
+    } catch (err) {
+      console.error('[consent] acceptAll error', err);
+    }
   }
-  function rejectAll() {
-    save({analytics: false, marketing: false, ts: Date.now()});
-    location.reload();
+  function rejectAll(e) {
+    try {
+      e?.preventDefault();
+      save({ analytics: false, marketing: false, ts: Date.now() });
+      console.info('[consent] rejectAll -> saved, reloading');
+      location.reload();
+    } catch (err) {
+      console.error('[consent] rejectAll error', err);
+    }
   }
-  function savePrefs() {
-    save({analytics, marketing, ts: Date.now()});
-    location.reload();
+  function savePrefs(e) {
+    try {
+      e?.preventDefault();
+      save({ analytics, marketing, ts: Date.now() });
+      console.info('[consent] savePrefs -> saved, reloading');
+      location.reload();
+    } catch (err) {
+      console.error('[consent] savePrefs error', err);
+    }
   }
 
   return (
@@ -50,13 +68,13 @@ export default function ConsentBanner() {
               </label>
             </div>
           )}
-          <button className="px-3 py-2 rounded-lg border" onClick={() => setCustomize(v => !v)}>
+          <button type="button" className="px-3 py-2 rounded-lg border" onClick={() => setCustomize(v => !v)}>
             {customize ? 'Hide options' : 'Customize'}
           </button>
-          <button className="px-3 py-2 rounded-lg border" onClick={rejectAll}>Reject all</button>
-          <button className="px-3 py-2 rounded-lg bg-black text-white" onClick={acceptAll}>Accept all</button>
+          <button type="button" className="px-3 py-2 rounded-lg border" onClick={rejectAll}>Reject all</button>
+          <button type="button" className="px-3 py-2 rounded-lg bg-black text-white" onClick={acceptAll}>Accept all</button>
           {customize && (
-            <button className="px-3 py-2 rounded-lg bg-black text-white" onClick={savePrefs}>Save preferences</button>
+            <button type="button" className="px-3 py-2 rounded-lg bg-black text-white" onClick={savePrefs}>Save preferences</button>
           )}
         </div>
       </div>
