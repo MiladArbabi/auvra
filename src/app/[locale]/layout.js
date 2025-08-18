@@ -1,7 +1,6 @@
 import Providers from '@/components/Providers';
 import en from '@/messages/en.json';
 import sv from '@/messages/sv.json';
-import Footer from '@/components/Footer';
 
 export default async function LocaleLayout({children, params}) {
   const {locale} = await params; // params is a Promise in Next 15
@@ -12,7 +11,6 @@ export default async function LocaleLayout({children, params}) {
    <Providers locale={locale} messages={messages}>
      <div className="min-h-screen flex flex-col">
        {children}
-       <Footer />
      </div>
    </Providers>
  );

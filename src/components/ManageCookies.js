@@ -1,3 +1,4 @@
+// src/components/ManageCookies.js
 'use client';
 import {useEffect, useState} from 'react';
 import {readConsent, writeConsent} from '@/lib/consent';

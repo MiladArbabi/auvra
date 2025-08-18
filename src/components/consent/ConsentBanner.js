@@ -1,3 +1,4 @@
+// src/components/consent/ConsentBanner.js
 'use client';
 
 import {useEffect, useState} from 'react';
