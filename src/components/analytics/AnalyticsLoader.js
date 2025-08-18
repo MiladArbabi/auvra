@@ -1,3 +1,4 @@
+// src/components/analytics/AnalyticsLoader.js
 'use client';
 
 import Script from 'next/script';
@@ -17,6 +18,23 @@ export default function AnalyticsLoader() {
   // Wait until consent state is known
   const canAnalytics = ready && consent?.analytics && !!GA;
   const canMarketing = ready && consent?.marketing && (!!FB || !!TT);
+
+  // ----- Consent Mode v2: update when user choice is known -----
+  useEffect(() => {
+    if (!ready || consent == null) return; // undecided
+    const update = {
+      ad_user_data:         consent.marketing ? 'granted' : 'denied',
+      ad_personalization:   consent.marketing ? 'granted' : 'denied',
+      ad_storage:           consent.marketing ? 'granted' : 'denied',
+      analytics_storage:    consent.analytics ? 'granted' : 'denied',
+      // optional essentials (kept granted)
+      functionality_storage: 'granted',
+      security_storage:      'granted',
+    };
+    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+      window.gtag('consent', 'update', update);
+    }
+  }, [ready, consent]);
 
   // fire route change events
   const prevPath = useRef('');
@@ -46,6 +64,23 @@ export default function AnalyticsLoader() {
 
   return (
     <>
+    {/* --- Google Consent Mode v2: defaults (always render) --- */}
+      <Script id="gcm-defaults" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = window.gtag || gtag;
+          // Default to denied; we update after user choice above.
+          gtag('consent', 'default', {
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied',
+            'ad_storage': 'denied',
+            'analytics_storage': 'denied',
+            'functionality_storage': 'granted',
+            'security_storage': 'granted'
+          });
+        `}
+      </Script>
       {/* GA4 */}
       {canAnalytics && (
         <>
@@ -55,7 +90,11 @@ export default function AnalyticsLoader() {
             function gtag(){dataLayer.push(arguments);}
             window.gtag = window.gtag || gtag;
             gtag('js', new Date());
-            gtag('config', '${GA}', { send_page_view: false });
+            gtag('config', '${GA}', {
+              send_page_view: false,
+              anonymize_ip: true,
+              allow_ad_personalization_signals: false
+            });
           `}</Script>
         </>
       )}
