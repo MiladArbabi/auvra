@@ -1,4 +1,5 @@
 // src/components/analytics/AnalyticsLoader.js
+// src/components/analytics/AnalyticsLoader.js
 'use client';
 
 import {useEffect} from 'react';
@@ -17,6 +18,23 @@ export default function AnalyticsLoader() {
 
   const allowAnalytics = !!consent?.analytics;
   const allowMarketing = !!consent?.marketing;
+
+  // ----- Consent Mode v2: update when user choice is known -----
+  useEffect(() => {
+    if (!ready || consent == null) return; // undecided
+    const update = {
+      ad_user_data:         consent.marketing ? 'granted' : 'denied',
+      ad_personalization:   consent.marketing ? 'granted' : 'denied',
+      ad_storage:           consent.marketing ? 'granted' : 'denied',
+      analytics_storage:    consent.analytics ? 'granted' : 'denied',
+      // optional essentials (kept granted)
+      functionality_storage: 'granted',
+      security_storage:      'granted',
+    };
+    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+      window.gtag('consent', 'update', update);
+    }
+  }, [ready, consent]);
 
   // Fire virtual pageviews on route changes (after initial).
   useEffect(() => {
@@ -38,25 +56,38 @@ export default function AnalyticsLoader() {
 
   return (
     <>
-      {/* GA4 (analytics) */}
-      {allowAnalytics && GA_ID && (
+    {/* --- Google Consent Mode v2: defaults (always render) --- */}
+      <Script id="gcm-defaults" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = window.gtag || gtag;
+          // Default to denied; we update after user choice above.
+          gtag('consent', 'default', {
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied',
+            'ad_storage': 'denied',
+            'analytics_storage': 'denied',
+            'functionality_storage': 'granted',
+            'security_storage': 'granted'
+          });
+        `}
+      </Script>
+      {/* GA4 */}
+      {canAnalytics && (
         <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-            strategy="afterInteractive"
-          />
-          <Script id="ga4-init" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              window.gtag = window.gtag || gtag;
-              gtag('js', new Date());
-              gtag('config', '${GA_ID}', {
-                anonymize_ip: true,
-                allow_ad_personalization_signals: false
-              });
-            `}
-          </Script>
+          <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA}`} strategy="afterInteractive" />
+          <Script id="ga4" strategy="afterInteractive">{`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag = window.gtag || gtag;
+            gtag('js', new Date());
+            gtag('config', '${GA}', {
+              send_page_view: false,
+              anonymize_ip: true,
+              allow_ad_personalization_signals: false
+            });
+          `}</Script>
         </>
       )}
 
