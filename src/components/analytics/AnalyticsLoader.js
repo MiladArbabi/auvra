@@ -117,24 +117,30 @@ export default function AnalyticsLoader() {
         </>
       )}
 
-      {/* TikTok Pixel (marketing) */}
-      {allowMarketing && TT_ID && (
-        <Script id="ttq-init" strategy="afterInteractive">
-          {`
-            !function (w, d, t) {
-              w.TiktokAnalyticsObject=t; var ttq=w[t]=w[t]||[];
-              ttq.methods=['page','track','identify','instances','debug','on','off','once','ready','alias','group','enableCookie','disableCookie'],
-              ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};
-              for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
-              ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};
-              ttq.load=function(e,n){var i='https://analytics.tiktok.com/i18n/pixel/events.js';
-              ttq._i=ttq._i||{}, ttq._i[e]=[], ttq._i[e]._u=i, ttq._t=ttq._t||{}, ttq._t[e]=+new Date;
-              var o=d.createElement('script');o.type='text/javascript',o.async=!0,o.src=i;
-              var a=d.getElementsByTagName('script')[0];a.parentNode.insertBefore(o,a); ttq._load = o;};
-              ttq.load('${TT_ID}'); ttq.page();
-            }(window, document, 'ttq');
-          `}
-        </Script>
+      {/* TikTok */}
+      {canMarketing && TT && (
+        <Script id="ttq" strategy="afterInteractive">{`
+          (function (w, d, t) {
+            w.TiktokAnalyticsObject = t;
+            var ttq = w[t];
+            // Ensure queue is an Array; if not, replace it to avoid t.push errors
+            if (!Array.isArray(ttq)) { ttq = []; w[t] = ttq; }
+            ttq.methods = ['page','track','identify','instances','debug','on','off','once','ready','alias','group','enableCookie','disableCookie'];
+            ttq.setAndDefer = function(obj, m){ obj[m] = function(){ ttq.push([m].concat([].slice.call(arguments,0))) } };
+            for (var i=0; i<ttq.methods.length; i++) ttq.setAndDefer(ttq, ttq.methods[i]);
+            ttq.instance = function(name){ var inst = (ttq._i && ttq._i[name]) || []; for (var j=0; j<ttq.methods.length; j++) ttq.setAndDefer(inst, ttq.methods[j]); return inst; };
+            ttq.load = function(id, opts){
+              var u='https://analytics.tiktok.com/i18n/pixel/events.js';
+              ttq._i = ttq._i || {}; ttq._i[id] = []; ttq._i[id]._u = u;
+              ttq._t = ttq._t || {}; ttq._t[id] = +new Date;
+              ttq._o = ttq._o || {}; ttq._o[id] = opts || {};
+              var s = d.createElement('script'); s.type='text/javascript'; s.async=true; s.src = u + '?sdkid=' + id + '&lib=' + t;
+              var x = d.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x);
+              ttq._loaded = true;
+            };
+            if (!ttq._loaded) ttq.load('${TT}');
+          })(window, document, 'ttq');
+        `}</Script>
       )}
     </>
   );
