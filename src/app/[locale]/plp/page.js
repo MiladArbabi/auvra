@@ -4,6 +4,7 @@ import {getCountry, localeToLanguage, localeTag, formatMoney} from '@/lib/market
 import PLPClient from './PLPClient';
 import { headers } from 'next/headers';
 import { getVariantFromHeaders } from '@/lib/experiments';
+import { canonicalFor, alternatesFor, absUrl, collectionJsonLd } from '@/lib/seo';
 
 const QUERY = /* GraphQL */ `
   query($first:Int!, $country: CountryCode, $language: LanguageCode)
@@ -20,6 +21,17 @@ const QUERY = /* GraphQL */ `
     }
   }
 `;
+
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  const path = '/plp';
+  return {
+    alternates: {
+      canonical: canonicalFor(locale, path),
+      languages: alternatesFor(path),
+    },
+  };
+}
 
 export default async function PLP({ params }) {
   const { locale } = await params;
@@ -45,5 +57,14 @@ export default async function PLP({ params }) {
     };
   });
 
-  return <PLPClient locale={locale} country={country} items={viewItems} variant={variant} />;
+  const jsonld = collectionJsonLd({ name: 'Products', url: absUrl(`/${locale}/plp`) });
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }}
+      />
+      <PLPClient locale={locale} country={country} items={viewItems} variant={variant} />
+    </>
+  );
 }
