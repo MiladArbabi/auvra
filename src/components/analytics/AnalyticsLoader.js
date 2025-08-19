@@ -1,4 +1,5 @@
 // src/components/analytics/AnalyticsLoader.js
+// src/components/analytics/AnalyticsLoader.js
 'use client';
 
 import {useEffect} from 'react';
@@ -17,6 +18,23 @@ export default function AnalyticsLoader() {
 
   const allowAnalytics = !!consent?.analytics;
   const allowMarketing = !!consent?.marketing;
+
+  // ----- Consent Mode v2: update when user choice is known -----
+  useEffect(() => {
+    if (!ready || consent == null) return; // undecided
+    const update = {
+      ad_user_data:         consent.marketing ? 'granted' : 'denied',
+      ad_personalization:   consent.marketing ? 'granted' : 'denied',
+      ad_storage:           consent.marketing ? 'granted' : 'denied',
+      analytics_storage:    consent.analytics ? 'granted' : 'denied',
+      // optional essentials (kept granted)
+      functionality_storage: 'granted',
+      security_storage:      'granted',
+    };
+    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+      window.gtag('consent', 'update', update);
+    }
+  }, [ready, consent]);
 
   // Fire virtual pageviews on route changes (after initial).
   useEffect(() => {
@@ -38,25 +56,38 @@ export default function AnalyticsLoader() {
 
   return (
     <>
-      {/* GA4 (analytics) */}
-      {allowAnalytics && GA_ID && (
+    {/* --- Google Consent Mode v2: defaults (always render) --- */}
+      <Script id="gcm-defaults" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = window.gtag || gtag;
+          // Default to denied; we update after user choice above.
+          gtag('consent', 'default', {
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied',
+            'ad_storage': 'denied',
+            'analytics_storage': 'denied',
+            'functionality_storage': 'granted',
+            'security_storage': 'granted'
+          });
+        `}
+      </Script>
+      {/* GA4 */}
+      {canAnalytics && (
         <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-            strategy="afterInteractive"
-          />
-          <Script id="ga4-init" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              window.gtag = window.gtag || gtag;
-              gtag('js', new Date());
-              gtag('config', '${GA_ID}', {
-                anonymize_ip: true,
-                allow_ad_personalization_signals: false
-              });
-            `}
-          </Script>
+          <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA}`} strategy="afterInteractive" />
+          <Script id="ga4" strategy="afterInteractive">{`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag = window.gtag || gtag;
+            gtag('js', new Date());
+            gtag('config', '${GA}', {
+              send_page_view: false,
+              anonymize_ip: true,
+              allow_ad_personalization_signals: false
+            });
+          `}</Script>
         </>
       )}
 
@@ -86,24 +117,30 @@ export default function AnalyticsLoader() {
         </>
       )}
 
-      {/* TikTok Pixel (marketing) */}
-      {allowMarketing && TT_ID && (
-        <Script id="ttq-init" strategy="afterInteractive">
-          {`
-            !function (w, d, t) {
-              w.TiktokAnalyticsObject=t; var ttq=w[t]=w[t]||[];
-              ttq.methods=['page','track','identify','instances','debug','on','off','once','ready','alias','group','enableCookie','disableCookie'],
-              ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};
-              for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
-              ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};
-              ttq.load=function(e,n){var i='https://analytics.tiktok.com/i18n/pixel/events.js';
-              ttq._i=ttq._i||{}, ttq._i[e]=[], ttq._i[e]._u=i, ttq._t=ttq._t||{}, ttq._t[e]=+new Date;
-              var o=d.createElement('script');o.type='text/javascript',o.async=!0,o.src=i;
-              var a=d.getElementsByTagName('script')[0];a.parentNode.insertBefore(o,a); ttq._load = o;};
-              ttq.load('${TT_ID}'); ttq.page();
-            }(window, document, 'ttq');
-          `}
-        </Script>
+      {/* TikTok */}
+      {canMarketing && TT && (
+        <Script id="ttq" strategy="afterInteractive">{`
+          (function (w, d, t) {
+            w.TiktokAnalyticsObject = t;
+            var ttq = w[t];
+            // Ensure queue is an Array; if not, replace it to avoid t.push errors
+            if (!Array.isArray(ttq)) { ttq = []; w[t] = ttq; }
+            ttq.methods = ['page','track','identify','instances','debug','on','off','once','ready','alias','group','enableCookie','disableCookie'];
+            ttq.setAndDefer = function(obj, m){ obj[m] = function(){ ttq.push([m].concat([].slice.call(arguments,0))) } };
+            for (var i=0; i<ttq.methods.length; i++) ttq.setAndDefer(ttq, ttq.methods[i]);
+            ttq.instance = function(name){ var inst = (ttq._i && ttq._i[name]) || []; for (var j=0; j<ttq.methods.length; j++) ttq.setAndDefer(inst, ttq.methods[j]); return inst; };
+            ttq.load = function(id, opts){
+              var u='https://analytics.tiktok.com/i18n/pixel/events.js';
+              ttq._i = ttq._i || {}; ttq._i[id] = []; ttq._i[id]._u = u;
+              ttq._t = ttq._t || {}; ttq._t[id] = +new Date;
+              ttq._o = ttq._o || {}; ttq._o[id] = opts || {};
+              var s = d.createElement('script'); s.type='text/javascript'; s.async=true; s.src = u + '?sdkid=' + id + '&lib=' + t;
+              var x = d.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x);
+              ttq._loaded = true;
+            };
+            if (!ttq._loaded) ttq.load('${TT}');
+          })(window, document, 'ttq');
+        `}</Script>
       )}
     </>
   );
