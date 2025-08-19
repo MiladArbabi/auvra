@@ -34,7 +34,7 @@ export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
 
   // Debug header so we can see middleware hits via curl -I
-  res.headers.set('x-mw', 'hit');
+  if (process.env.NODE_ENV !== 'production') res.headers.set('x-mw', 'hit');
 
   // vuid cookie (client-readable so your client hook can use it if desired)
   let vuid = req.cookies.get(VUID)?.value;
@@ -45,6 +45,7 @@ export async function middleware(req: NextRequest) {
       httpOnly: false,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 365,
+      secure: process.env.NODE_ENV === 'production'
     });
   }
 
@@ -52,6 +53,20 @@ export async function middleware(req: NextRequest) {
   for (const e of ACTIVE_EXPERIMENTS) {
     const cname = `exp_${e.key}`;
     let v = req.cookies.get(cname)?.value as 'A'|'B'|undefined;
+
+    // DEV-ONLY variant override: ?exp_plp_filters=A|B
+    if (process.env.NODE_ENV !== 'production') {
+      const url = new URL(req.url);
+      const qv = url.searchParams.get(cname);
+      if (qv === 'A' || qv === 'B') {
+        v = qv;
+        res.cookies.set(cname, v, {
+          path: '/', httpOnly: false, sameSite: 'lax', maxAge: 60 * 60 * 24 * 30,
+        });
+        continue; // skip hashing; overridden
+      }
+    }
+
     if (!v) {
       v = await assignVariant(vuid!, e.key, e.split);
       res.cookies.set(cname, v, {
@@ -59,6 +74,7 @@ export async function middleware(req: NextRequest) {
         httpOnly: false,
         sameSite: 'lax',
         maxAge: 60 * 60 * 24 * 30,
+        secure: process.env.NODE_ENV === 'production'
       });
     }
   }
@@ -68,7 +84,5 @@ export async function middleware(req: NextRequest) {
 
 // keep the matcher broad while testing
 export const config = {
-  matcher: [
-    '/((?!_next|.*\\.(?:png|jpg|svg|ico|txt|js|css)|robots\\.txt|sitemap\\.xml|api).*)',
-  ],
+  matcher: ['/((?!_next/|.*\\.(?:png|jpg|jpeg|svg|ico|txt|js|css)$).*)'],
 };

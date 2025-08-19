@@ -1,10 +1,9 @@
 // src/app/[locale]/plp/page.js
-import Link from 'next/link';
-import Image from 'next/image';
 import {sf} from '@/lib/shopify';
 import {getCountry, localeToLanguage, localeTag, formatMoney} from '@/lib/market';
-import CountrySwitcher from '@/components/CountrySwitcher';
 import PLPClient from './PLPClient';
+import { headers } from 'next/headers';
+import { getVariantFromHeaders } from '@/lib/experiments';
 
 const QUERY = /* GraphQL */ `
   query($first:Int!, $country: CountryCode, $language: LanguageCode)
@@ -28,6 +27,9 @@ export default async function PLP({ params }) {
   const language = localeToLanguage(locale);
   const tag      = localeTag(locale, country);
 
+  const hdrs = await headers();
+  const variant = getVariantFromHeaders(hdrs, 'plp_filters'); // 'A' | 'B'
+
   const data = await sf(QUERY, { first: 24, country, language });
   const items = data?.products?.edges?.map(e => e.node) || [];
   // Pre-format for client to avoid redoing market math in the browser
@@ -43,5 +45,5 @@ export default async function PLP({ params }) {
     };
   });
 
-  return <PLPClient locale={locale} country={country} items={viewItems} />;
+  return <PLPClient locale={locale} country={country} items={viewItems} variant={variant} />;
 }

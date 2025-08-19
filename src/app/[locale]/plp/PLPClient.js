@@ -8,8 +8,9 @@ import CountrySwitcher from '@/components/CountrySwitcher';
 import { useVariant } from '@/lib/experiments-client';
 import { experimentExposure } from '@/lib/track';
 
-export default function PLPClient({ locale, country, items }) {
-  const v = useVariant('plp_filters');
+export default function PLPClient({ locale, country, items, variant }) {
+  const cookieV = useVariant('plp_filters');
+  const v = variant ?? cookieV;
 
   // Send exposure ONCE per tab/session
   useEffect(() => {
