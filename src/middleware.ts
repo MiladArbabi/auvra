@@ -31,7 +31,31 @@ async function assignVariant(vuid: string, key: string, split: Exp['split']): Pr
 }
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
+  const url = req.nextUrl
+  const host = req.headers.get('host')?.toLowerCase() || ''
+  const pathname = url.pathname + (url.search ?? '')
+
+  // www.auvra.shop → apex
+  if (host === 'www.auvra.shop') {
+    return NextResponse.redirect(new URL(pathname, 'https://auvra.shop'), 308)
+  }
+
+  // *.se → auvra.shop/sv/*
+  if (host === 'auvra.se' || host === 'www.auvra.se') {
+    const destPath = pathname.startsWith('/sv') ? pathname : `/sv${pathname}`
+    return NextResponse.redirect(new URL(destPath, 'https://auvra.shop'), 308)
+  }
+
+  // *.online / *.info → auvra.shop/*
+  if (
+    host === 'auvra.online' || host === 'www.auvra.online' ||
+    host === 'auvra.info'   || host === 'www.auvra.info'
+  ) {
+    return NextResponse.redirect(new URL(pathname, 'https://auvra.shop'), 308)
+  }
+
+  // (rest of your middleware continues…)
+  const res = NextResponse.next()
 
   // Debug header so we can see middleware hits via curl -I
   if (process.env.NODE_ENV !== 'production') res.headers.set('x-mw', 'hit');
