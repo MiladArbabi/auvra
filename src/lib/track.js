@@ -108,3 +108,18 @@ export function purchase({transaction_id, value, currency, items}) {
   fb('Purchase', { value, currency });
   tt('CompletePayment', { value, currency, order_id: transaction_id });
 }
+
+export function experimentExposure({ id, variant }) {
+  // GA4
+  ga('experiment_exposure', { experiment_id: id, variant });
+
+  // Meta custom event
+  if (allow('marketing') && typeof window !== 'undefined' && typeof window.fbq === 'function') {
+    window.fbq('trackCustom', 'ExperimentExposure', { experiment_id: id, variant });
+  }
+
+  // TikTok custom event
+  if (allow('marketing') && typeof window !== 'undefined' && window.ttq?.track) {
+    window.ttq.track('ExperimentExposure', { experiment_id: id, variant });
+  }
+}

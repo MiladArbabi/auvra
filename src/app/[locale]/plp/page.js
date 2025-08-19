@@ -4,6 +4,7 @@ import Image from 'next/image';
 import {sf} from '@/lib/shopify';
 import {getCountry, localeToLanguage, localeTag, formatMoney} from '@/lib/market';
 import CountrySwitcher from '@/components/CountrySwitcher';
+import PLPClient from './PLPClient';
 
 const QUERY = /* GraphQL */ `
   query($first:Int!, $country: CountryCode, $language: LanguageCode)
@@ -29,31 +30,18 @@ export default async function PLP({ params }) {
 
   const data = await sf(QUERY, { first: 24, country, language });
   const items = data?.products?.edges?.map(e => e.node) || [];
-  return (
-    <main className="p-8 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-      <div className="mb-4"><CountrySwitcher current={country} />
-      {items.map(p => {
-        const amt = p.priceRange?.minVariantPrice?.amount;
-        const ccy = p.priceRange?.minVariantPrice?.currencyCode || 'EUR';
-        const price = amt ? formatMoney(amt, ccy, tag) : null;
-        return (
-          <Link key={p.handle} href={`/${locale}/product/${p.handle}`} className="block border rounded-xl p-4 hover:shadow-sm">
-            {p.featuredImage?.url && (
-              <Image
-                src={p.featuredImage.url}
-                alt={p.featuredImage.altText || p.title}
-                width={p.featuredImage.width || 800}
-                height={p.featuredImage.height || 800}
-                className="rounded-lg mb-3"
-                sizes="(min-width:1024px) 25vw, (min-width:768px) 33vw, 50vw"
-              />
-            )}
-            <h3 className="font-medium">{p.title}</h3>
-            {price && <p className="text-sm mt-1">{price}</p>}
-          </Link>
-        );
-      })}
-      </div>
-    </main>
-  );
+  // Pre-format for client to avoid redoing market math in the browser
+  const viewItems = items.map(p => {
+    const amt = p.priceRange?.minVariantPrice?.amount;
+    const ccy = p.priceRange?.minVariantPrice?.currencyCode || 'EUR';
+    const price = amt ? formatMoney(amt, ccy, tag) : null;
+    return {
+      handle: p.handle,
+      title: p.title,
+      price,
+      image: p.featuredImage || null,
+    };
+  });
+
+  return <PLPClient locale={locale} country={country} items={viewItems} />;
 }
