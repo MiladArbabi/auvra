@@ -1,5 +1,4 @@
 // src/components/analytics/AnalyticsLoader.js
-// src/components/analytics/AnalyticsLoader.js
 'use client';
 
 import {useEffect} from 'react';
@@ -16,18 +15,18 @@ export default function AnalyticsLoader() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const allowAnalytics = !!consent?.analytics;
-  const allowMarketing = !!consent?.marketing;
+  // Gate tag rendering by consent + presence of IDs
+  const allowAnalytics = ready && !!consent?.analytics && !!GA_ID;
+  const allowMarketing = ready && !!consent?.marketing && (!!META_ID || !!TT_ID);
 
   // ----- Consent Mode v2: update when user choice is known -----
   useEffect(() => {
     if (!ready || consent == null) return; // undecided
     const update = {
-      ad_user_data:         consent.marketing ? 'granted' : 'denied',
-      ad_personalization:   consent.marketing ? 'granted' : 'denied',
-      ad_storage:           consent.marketing ? 'granted' : 'denied',
-      analytics_storage:    consent.analytics ? 'granted' : 'denied',
-      // optional essentials (kept granted)
+      ad_user_data:           consent.marketing ? 'granted' : 'denied',
+      ad_personalization:     consent.marketing ? 'granted' : 'denied',
+      ad_storage:             consent.marketing ? 'granted' : 'denied',
+      analytics_storage:      consent.analytics ? 'granted' : 'denied',
       functionality_storage: 'granted',
       security_storage:      'granted',
     };
@@ -38,7 +37,7 @@ export default function AnalyticsLoader() {
 
   // Fire virtual pageviews on route changes (after initial).
   useEffect(() => {
-    if (!ready || consent == null) return; // undecided or not mounted
+    if (!ready || consent == null) return;
     const path = pathname + (searchParams?.toString() ? `?${searchParams}` : '');
     if (allowAnalytics && typeof window.gtag === 'function') {
       window.gtag('event', 'page_view', { page_path: path });
@@ -51,18 +50,14 @@ export default function AnalyticsLoader() {
     }
   }, [ready, consent, allowAnalytics, allowMarketing, pathname, searchParams]);
 
-  // Don’t render any tags until the user has made a choice.
-  if (!ready || consent == null) return null;
-
   return (
     <>
-    {/* --- Google Consent Mode v2: defaults (always render) --- */}
+      {/* Google Consent Mode v2: defaults (always render) */}
       <Script id="gcm-defaults" strategy="afterInteractive">
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           window.gtag = window.gtag || gtag;
-          // Default to denied; we update after user choice above.
           gtag('consent', 'default', {
             'ad_user_data': 'denied',
             'ad_personalization': 'denied',
@@ -73,16 +68,17 @@ export default function AnalyticsLoader() {
           });
         `}
       </Script>
+
       {/* GA4 */}
-      {canAnalytics && (
+      {allowAnalytics && (
         <>
-          <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA}`} strategy="afterInteractive" />
+          <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
           <Script id="ga4" strategy="afterInteractive">{`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             window.gtag = window.gtag || gtag;
             gtag('js', new Date());
-            gtag('config', '${GA}', {
+            gtag('config', '${GA_ID}', {
               send_page_view: false,
               anonymize_ip: true,
               allow_ad_personalization_signals: false
@@ -109,7 +105,6 @@ export default function AnalyticsLoader() {
             `}
           </Script>
           <noscript>
-            {/* helps validators; harmless in React since noscript is ignored in CSR */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img height="1" width="1" style={{display:'none'}}
                  src={`https://www.facebook.com/tr?id=${META_ID}&ev=PageView&noscript=1`} alt=""/>
@@ -118,12 +113,11 @@ export default function AnalyticsLoader() {
       )}
 
       {/* TikTok */}
-      {canMarketing && TT && (
+      {allowMarketing && TT_ID && (
         <Script id="ttq" strategy="afterInteractive">{`
           (function (w, d, t) {
             w.TiktokAnalyticsObject = t;
             var ttq = w[t];
-            // Ensure queue is an Array; if not, replace it to avoid t.push errors
             if (!Array.isArray(ttq)) { ttq = []; w[t] = ttq; }
             ttq.methods = ['page','track','identify','instances','debug','on','off','once','ready','alias','group','enableCookie','disableCookie'];
             ttq.setAndDefer = function(obj, m){ obj[m] = function(){ ttq.push([m].concat([].slice.call(arguments,0))) } };
@@ -138,7 +132,7 @@ export default function AnalyticsLoader() {
               var x = d.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x);
               ttq._loaded = true;
             };
-            if (!ttq._loaded) ttq.load('${TT}');
+            if (!ttq._loaded) ttq.load('${TT_ID}');
           })(window, document, 'ttq');
         `}</Script>
       )}
