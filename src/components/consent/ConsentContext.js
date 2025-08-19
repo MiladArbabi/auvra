@@ -1,15 +1,11 @@
 // src/components/consent/ConsentContext.js
 'use client';
 import {createContext, useContext, useEffect, useState} from 'react';
-<<<<<<< HEAD
-import {readConsent as readConsentCookie, writeConsent as writeConsentCookie} from '@/lib/consent';
-=======
 import {
   readConsent as readConsentCookie,
   writeConsent as writeConsentCookie,
   CONSENT_COOKIE
 } from '@/lib/consent';
->>>>>>> 2a5e0b6 (fix(analytics): unify consent cookie + dev helpers (Refs #30))
 
 const ConsentContext = createContext({
   consent: null,     // { analytics: bool, marketing: bool } | null (undecided)
