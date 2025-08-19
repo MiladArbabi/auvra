@@ -25,11 +25,9 @@ const QUERY = /* GraphQL */ `
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   const path = '/plp';
+  const languages = { ...alternatesFor(path), 'x-default': absUrl(`/en${path}`) };
   return {
-    alternates: {
-      canonical: canonicalFor(locale, path),
-      languages: alternatesFor(path),
-    },
+    alternates: { canonical: canonicalFor(locale, path), languages },
   };
 }
 

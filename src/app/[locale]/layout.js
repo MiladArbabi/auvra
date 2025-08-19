@@ -21,6 +21,7 @@ export async function generateMetadata({ params }) {
       siteName: 'Auvra',
       locale: ogLocaleFor(locale),
       type: 'website',
+      alternateLocale: Object.values({ en: 'en_US', sv: 'sv_SE' }).filter(l => l !== ogLocaleFor(locale)),
     },
   };
 }
