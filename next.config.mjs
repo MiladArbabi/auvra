@@ -7,6 +7,16 @@ const nextConfig = {
       { protocol: 'https', hostname: 'cdn.shopify.com' },
       { protocol: 'https', hostname: '*.myshopify.com' }
     ]
-  }
+  },
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.auvra.shop' }],
+        destination: 'https://auvra.shop/:path*',
+        permanent: true,
+      },
+    ];
+  },
 };
 export default nextConfig;
