@@ -40,11 +40,20 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL(pathname, 'https://auvra.shop'), 308)
   }
 
-  // *.se → auvra.shop/sv/*
-  if (host === 'auvra.se' || host === 'www.auvra.se') {
-    const destPath = pathname.startsWith('/sv') ? pathname : `/sv${pathname}`
-    return NextResponse.redirect(new URL(destPath, 'https://auvra.shop'), 308)
+  // *.se → auvra.shop (with /sv rules)
+if (host === 'auvra.se' || host === 'www.auvra.se') {
+  // leave platform files on root, not /sv
+  if (pathname === '/sitemap.xml' || pathname === '/robots.txt') {
+    return NextResponse.redirect(new URL(pathname, 'https://auvra.shop'), 308);
   }
+
+  // /en/* → /sv/* ; already /sv* stays; everything else gets /sv prefix
+  let destPath = pathname;
+  if (destPath.startsWith('/en/')) destPath = destPath.replace(/^\/en/, '/sv');
+  else if (!destPath.startsWith('/sv')) destPath = `/sv${destPath}`;
+
+  return NextResponse.redirect(new URL(destPath, 'https://auvra.shop'), 308);
+}
 
   // *.online / *.info → auvra.shop/*
   if (
