@@ -10,27 +10,9 @@ export default function BeginCheckout({ formId, value, currency }) {
     const onSubmit = () => {
       const v = typeof value === 'number' ? value : undefined;
       try {
-        // GA4
-        if (window.gtag) {
-          window.gtag('event', 'begin_checkout', {
-            currency,
-            value: v,
-          });
-        }
-        // Meta
-        if (window.fbq) {
-          window.fbq('track', 'InitiateCheckout', {
-            currency,
-            value: v,
-          });
-        }
-        // TikTok
-        if (window.ttq && window.ttq.track) {
-          window.ttq.track('InitiateCheckout', {
-            currency,
-            value: v,
-          });
-        }
+        window.gtag?.('event', 'begin_checkout', { currency, value: v });
+        window.fbq?.('track', 'InitiateCheckout', { currency, value: v });
+        window.ttq?.track?.('InitiateCheckout', { currency, value: v });
       } catch {}
     };
 

@@ -1,7 +1,6 @@
 // src/app/[locale]/product/[handle]/page.js
 import Image from 'next/image';
 import {sf} from '@/lib/shopify';
-import {checkout} from '@/app/actions/checkout';
 import {getCountry, localeToLanguage, localeTag, formatMoney} from '@/lib/market';
 import VatNote from '@/components/VatNote';
 import CountrySwitcher from '@/components/CountrySwitcher';
@@ -81,7 +80,7 @@ export default async function ProductPage({params}) {
             </>
           )}
           <div className="prose mt-4" dangerouslySetInnerHTML={{__html: p.descriptionHtml || ''}} />
-          <form id="buy" action={checkout} className="mt-6 space-x-3">
+          <form id="buy" className="mt-6 space-x-3">
             <input type="hidden" name="variantId" value={firstVar?.id || ''} />
             <input
               name="quantity"
