@@ -1,3 +1,4 @@
+// src/lib/market.js
 import {cookies} from 'next/headers';
 
 // --- server-only helper (await cookies())
@@ -36,4 +37,28 @@ export function formatMoney(amount, currency, tag) {
   } catch {
     return `${n} ${currency}`;
   }
+}
+
+export const MARKET = {
+  SE: {
+    currency: 'SEK',
+    freeShippingThreshold: 499, // kr
+    standardRate: 49,           // kr
+  },
+};
+
+// Currency by country (fallback EUR for non-configured)
+export function currencyForCountry(code = 'SE') {
+  const c = String(code).toUpperCase();
+  return MARKET[c]?.currency || 'EUR';
+}
+
+// Human note for shipping
+export function shippingNote(country, tag) {
+  const c = String(country).toUpperCase();
+  if (c === 'SE') {
+    const t = MARKET.SE.freeShippingThreshold;
+    return `Free shipping over ${formatMoney(t, MARKET.SE.currency, tag)}`;
+  }
+  return 'Shipping calculated at checkout';
 }

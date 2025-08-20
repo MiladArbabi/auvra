@@ -1,3 +1,4 @@
+// src/components/AnalyticsGate.js
 'use client';
 import {useEffect, useRef} from 'react';
 import {readConsent} from '@/lib/consent';

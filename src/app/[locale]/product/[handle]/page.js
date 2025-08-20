@@ -1,9 +1,12 @@
+// src/app/[locale]/product/[handle]/page.js
 import Image from 'next/image';
 import {sf} from '@/lib/shopify';
 import {checkout} from '@/app/actions/checkout';
 import {getCountry, localeToLanguage, localeTag, formatMoney} from '@/lib/market';
 import VatNote from '@/components/VatNote';
 import CountrySwitcher from '@/components/CountrySwitcher';
+import BeginCheckout from '@/components/BeginCheckout';
+import { currencyForCountry } from '@/lib/market';
 
 const QUERY = /* GraphQL */ `
   query ProductByHandle(
@@ -35,7 +38,7 @@ export default async function ProductPage({params}) {
 
   const firstVar = p.variants?.edges?.[0]?.node;
   const amount   = firstVar?.price?.amount;
-  const currency = firstVar?.price?.currencyCode || 'EUR';
+  const currency = firstVar?.price?.currencyCode || currencyForCountry(country);
   const priceFmt = amount ? formatMoney(amount, currency, tag) : null;
 
   const inStock = (firstVar?.availableForSale ?? p.availableForSale)
@@ -74,11 +77,11 @@ export default async function ProductPage({params}) {
           {priceFmt && (
             <>
               <p className="mt-2 text-lg">{priceFmt}</p>
-              <VatNote country={country} />
+              <VatNote country={country} tag={tag} />
             </>
           )}
           <div className="prose mt-4" dangerouslySetInnerHTML={{__html: p.descriptionHtml || ''}} />
-          <form action={checkout} className="mt-6 space-x-3">
+          <form id="buy" action={checkout} className="mt-6 space-x-3">
             <input type="hidden" name="variantId" value={firstVar?.id || ''} />
             <input
               name="quantity"
@@ -95,6 +98,12 @@ export default async function ProductPage({params}) {
               Checkout
             </button>
           </form>
+          {/* Fire analytics “begin_checkout” on submit (works with GA/Meta/TT if consent allows) */}
+          <BeginCheckout
+            formId="buy"
+            currency={currency}
+            value={amount ? Number(amount) : undefined}
+          />
         </div>
       </div>
     </main>

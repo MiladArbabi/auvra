@@ -1,38 +1,54 @@
-const domain   = process.env.SHOPIFY_STORE_DOMAIN;
-const pubToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
-const prvToken = process.env.SHOPIFY_STOREFRONT_PRIVATE_TOKEN;
-const apiVer   = process.env.SHOPIFY_API_VERSION || '2024-07';
+// src/lib/shopify.js
+const domain = process.env.SHOPIFY_STORE_DOMAIN;
+const apiVersion = process.env.SHOPIFY_API_VERSION || '2025-07';
+const endpoint = `https://${domain}/api/${apiVersion}/graphql.json`;
 
-if (!domain || (!prvToken && !pubToken)) {
-  console.warn('[shopify] Ensure SHOPIFY_STORE_DOMAIN and a Storefront token (.env.local)');
+const PRIVATE = (process.env.SHOPIFY_STOREFRONT_PRIVATE_TOKEN || '').trim();
+const PUBLIC  = (process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || '').trim();
+
+const preferPublicInDev = process.env.NODE_ENV !== 'production';
+
+function buildHeaders() {
+  // Prefer PUBLIC in dev to avoid accidental Admin shpat_ usage
+  if (preferPublicInDev && PUBLIC) {
+    if (process.env.NODE_ENV !== 'production') console.log('[shopify] using PUBLIC storefront token');
+    return {
+      'Content-Type': 'application/json',
+      'X-Shopify-Storefront-Access-Token': PUBLIC,
+    };
+  }
+  if (PRIVATE) {
+    if (process.env.NODE_ENV !== 'production') console.log('[shopify] using PRIVATE storefront token');
+    return {
+      'Content-Type': 'application/json',
+      'Shopify-Storefront-Private-Token': PRIVATE,
+    };
+  }
+  if (PUBLIC) {
+    if (process.env.NODE_ENV !== 'production') console.log('[shopify] using PUBLIC storefront token');
+    return {
+      'Content-Type': 'application/json',
+      'X-Shopify-Storefront-Access-Token': PUBLIC,
+    };
+  }
+  throw new Error('[storefront] missing token env (set SHOPIFY_STOREFRONT_PRIVATE_TOKEN or SHOPIFY_STOREFRONT_ACCESS_TOKEN)');
 }
 
-const endpoint = `https://${domain}/api/${apiVer}/graphql.json`;
-
-/**
- * Server-side Storefront GraphQL fetch
- * @param {string} query
- * @param {object} variables
- * @returns {Promise<any>}
- */
 export async function sf(query, variables = {}) {
   const res = await fetch(endpoint, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(prvToken
-        ? { 'Shopify-Storefront-Private-Token': prvToken }
-        : { 'X-Shopify-Storefront-Access-Token': pubToken })
-    },
+    headers: buildHeaders(),
     body: JSON.stringify({ query, variables }),
-    // avoid stale responses while developing
-    cache: 'no-store'
   });
 
-  const json = await res.json();
+  const text = await res.text();
+  let json;
+  try { json = JSON.parse(text); } catch {
+    throw new Error(`[storefront] Non-JSON response (${res.status}): ${text.slice(0,180)}…`);
+  }
 
   if (!res.ok || json.errors) {
-    const msg = json.errors?.map(e => e.message).join('; ') || res.statusText;
+    const msg = json.errors?.map(e => e.message).join('; ') || `${res.status} ${res.statusText}`;
     throw new Error(`[storefront] ${msg}`);
   }
   return json.data;
