@@ -27,6 +27,19 @@ export default function AnalyticsGate() {
     const apply = (prefs) => {
       if (!prefs) return;
 
+      // --- GA4 Consent Mode v2 defaults (denied):
+    if (GA) {
+      injectInline('ga4-consent-default', `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments)}
+        gtag('consent', 'default', {
+          ad_user_data: 'denied',
+          ad_personalization: 'denied',
+          ad_storage: 'denied',
+          analytics_storage: 'denied'
+        });
+      `);
+    }
       if (prefs.analytics && GA && !loaded.current.ga) {
         loadScript(`https://www.googletagmanager.com/gtag/js?id=${GA}`, 'ga4-src');
         injectInline('ga4-init', `
@@ -38,6 +51,18 @@ export default function AnalyticsGate() {
         loaded.current.ga = true;
         console.info('[analytics] GA4 loaded', GA);
       }
+
+      // Reflect consent to GA when banner changes
+    if (window.gtag && GA) {
+      const analytics = prefs.analytics ? 'granted' : 'denied';
+      const ads = prefs.marketing ? 'granted' : 'denied';
+      window.gtag('consent', 'update', {
+        analytics_storage: analytics,
+        ad_storage: ads,
+        ad_user_data: ads,
+        ad_personalization: ads
+      });
+    }
 
       if (prefs.marketing && META && !loaded.current.meta) {
         injectInline('fbq-init', `

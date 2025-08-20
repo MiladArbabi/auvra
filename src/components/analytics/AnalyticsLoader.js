@@ -5,6 +5,7 @@ import {useEffect} from 'react';
 import Script from 'next/script';
 import {usePathname, useSearchParams} from 'next/navigation';
 import {useConsent} from '@/components/consent/ConsentContext';
+import dynamic from 'next/dynamic'
 
 const GA_ID   = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 const META_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
