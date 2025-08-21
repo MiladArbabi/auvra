@@ -12,44 +12,57 @@ export default function PLPClient({ locale, country, items, variant }) {
   const cookieV = useVariant('plp_filters');
   const v = variant ?? cookieV;
 
-  // Send exposure ONCE per tab/session
   useEffect(() => {
     const k = `exposed:EXP-PLP-FILTERS:${v}`;
     if (!sessionStorage.getItem(k)) {
       experimentExposure({ id: 'EXP-PLP-FILTERS', variant: v });
       sessionStorage.setItem(k, '1');
     }
-    // Optional helpful log
     console.info('[exp] plp_filters variant =', v);
   }, [v]);
 
-  // Make a visible diff between A and B
-  const grid = v === 'B'
-    ? 'p-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5'
-    : 'p-8 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+  // Standardized, clean grid: 1 / 2 / 3 columns
+  const grid =
+    'mx-auto max-w-6xl p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8';
 
-  const card = v === 'B'
-    ? 'block border rounded-xl p-4 hover:shadow-md border-neutral-200'
-    : 'block border rounded-xl p-4 hover:shadow-sm';
+  const card =
+    'block no-underline border rounded-xl overflow-hidden bg-white hover:shadow-md transition-shadow';
 
   return (
     <main className={grid}>
-      <div className="mb-4 col-span-full"><CountrySwitcher current={country} /></div>
+      <div className="mb-2 col-span-full">
+        <CountrySwitcher current={country} />
+      </div>
 
-      {items.map(p => (
-        <Link key={p.handle} href={`/${locale}/product/${p.handle}`} className={card}>
-          {p.image?.url && (
-            <Image
-              src={p.image.url}
-              alt={p.image.altText || p.title}
-              width={p.image.width || 800}
-              height={p.image.height || 800}
-              className="rounded-lg mb-3"
-              sizes="(min-width:1024px) 25vw, (min-width:768px) 33vw, 50vw"
-            />
-          )}
-          <h3 className="font-medium">{p.title}</h3>
-          {p.price && <p className="text-sm mt-1">{p.price}</p>}
+      {items.map((p) => (
+        <Link
+          key={p.handle}
+          href={`/${locale}/product/${p.handle}`}
+          className={card}
+        >
+          {/* Image tile (square, cover) */}
+          <div className="relative aspect-square bg-neutral-100">
+            {p.image?.url && (
+              <Image
+                src={p.image.url}
+                alt={p.image.altText || p.title}
+                fill
+                className="object-cover"
+                sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
+                priority={false}
+              />
+            )}
+          </div>
+
+          {/* Text block */}
+          <div className="p-4">
+            <h3 className="text-sm font-medium text-neutral-900 truncate">
+              {p.title}
+            </h3>
+            {p.price && (
+              <p className="text-sm text-neutral-600 mt-1">{p.price}</p>
+            )}
+          </div>
         </Link>
       ))}
     </main>
