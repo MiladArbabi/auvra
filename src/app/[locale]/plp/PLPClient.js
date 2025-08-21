@@ -1,4 +1,3 @@
-// src/app/[locale]/plp/PLPClient.js
 'use client';
 
 import { useEffect } from 'react';
@@ -8,65 +7,105 @@ import CountrySwitcher from '@/components/CountrySwitcher';
 import { useVariant } from '@/lib/experiments-client';
 import { experimentExposure } from '@/lib/track';
 
-export default function PLPClient({ locale, country, items, variant }) {
+export default function PLPClient({ locale, country, items, variant, page, totalPages, baseHref }) {
   const cookieV = useVariant('plp_filters');
   const v = variant ?? cookieV;
 
+  // Single exposure per session
   useEffect(() => {
     const k = `exposed:EXP-PLP-FILTERS:${v}`;
     if (!sessionStorage.getItem(k)) {
       experimentExposure({ id: 'EXP-PLP-FILTERS', variant: v });
       sessionStorage.setItem(k, '1');
     }
-    console.info('[exp] plp_filters variant =', v);
   }, [v]);
 
-  // Clean 1/2/3-col grid
-  const grid =
-    'mx-auto max-w-6xl px-4 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-start';
+  // Container + exact 3-cols on lg+
+  const wrapper = 'mx-auto max-w-6xl px-4 py-8';
+  const grid    = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start';
 
   const card =
     'group block no-underline border border-neutral-200 rounded-xl overflow-hidden bg-white hover:shadow-md transition';
 
   return (
-    <main className={grid}>
-      <div className="mb-2 col-span-full">
+    <main className={wrapper}>
+      <div className="mb-4">
         <CountrySwitcher current={country} />
       </div>
 
-      {items.map((p) => (
-        <Link
-          key={p.handle}
-          href={`/${locale}/product/${p.handle}`}
-          className={card}
-        >
-          {/* Square image WITHOUT relying on tailwind aspect-square */}
-          <div
-            className="relative w-full overflow-hidden bg-neutral-100"
-            style={{ paddingTop: '100%' }} // makes this box square
+      {/* 3 × 3 grid */}
+      <div className={grid}>
+        {items.map((p) => (
+          <Link
+            key={p.handle}
+            href={`/${locale}/product/${p.handle}`}
+            className={card}
           >
-            {p.image?.url && (
-              <Image
-                src={p.image.url}
-                alt={p.image.altText || p.title}
-                fill
-                className="object-cover"
-                sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
-                priority={false}
-              />
-            )}
-          </div>
+            {/* Square image wrapper that does NOT rely on Tailwind aspect plugin */}
+            <div className="relative aspect-square bg-neutral-100 overflow-hidden">
+              {p.image?.url && (
+                <Image
+                  src={p.image.url}
+                  alt={p.image.altText || p.title}
+                  fill
+                  className="object-cover"
+                  sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
+                  priority={false}
+                />
+              )}
+            </div>
 
-          <div className="p-4">
-            <h3 className="text-sm font-medium text-neutral-900 truncate">
-              {p.title}
-            </h3>
-            {p.price && (
-              <p className="text-sm text-neutral-600 mt-1">{p.price}</p>
-            )}
-          </div>
-        </Link>
-      ))}
+            <div className="p-4">
+              <h3 className="text-sm font-medium text-neutral-900 truncate">
+                {p.title}
+              </h3>
+              {p.price && (
+                <p className="text-sm text-neutral-600 mt-1">{p.price}</p>
+              )}
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Pager row (bottom, centered) */}
+      <nav className="mt-8 flex justify-center items-center gap-2 text-sm">
+        {/* Prev */}
+        <PagerLink href={`${baseHref}?page=${Math.max(1, page - 1)}`} disabled={page <= 1}>
+          ‹ Prev
+        </PagerLink>
+
+        {/* Numbers (small catalogs → show all) */}
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+          <PagerLink
+            key={n}
+            href={`${baseHref}?page=${n}`}
+            active={n === page}
+          >
+            {n}
+          </PagerLink>
+        ))}
+
+        {/* Next */}
+        <PagerLink href={`${baseHref}?page=${Math.min(totalPages, page + 1)}`} disabled={page >= totalPages}>
+          Next ›
+        </PagerLink>
+      </nav>
     </main>
   );
+}
+
+function PagerLink({ href, children, disabled, active }) {
+  const base =
+    'px-3 py-1.5 rounded-md border transition';
+  const normal =
+    'border-neutral-200 text-neutral-700 hover:bg-neutral-50';
+  const on =
+    'border-neutral-900 bg-neutral-900 text-white';
+  const off =
+    'opacity-40 pointer-events-none';
+
+  const cls = [base, active ? on : normal, disabled ? off : ''].join(' ');
+
+  if (disabled) return <span className={cls}>{children}</span>;
+  return <Link href={href} className={cls}>{children}</Link>;
 }
