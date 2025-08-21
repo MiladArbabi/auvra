@@ -40,6 +40,8 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL(pathname, 'https://auvra.shop'), 308)
   }
 
+  
+
   // *.se → auvra.shop (with /sv rules)
 if (host === 'auvra.se' || host === 'www.auvra.se') {
   // leave platform files on root, not /sv
@@ -62,6 +64,25 @@ if (host === 'auvra.se' || host === 'www.auvra.se') {
   ) {
     return NextResponse.redirect(new URL(pathname, 'https://auvra.shop'), 308)
   }
+
+  // --- Coming Soon rewrite (serve static HTML from /public) ---
+  // Rewrites any non-asset GET request to /coming-soon.html while we build the shop.
+  // Excludes API and platform files.
+  if (req.method === 'GET') {
+    const p = url.pathname;
+
+    const isApi = p.startsWith('/api');
+    const isPlatformFile = p === '/sitemap.xml' || p === '/robots.txt';
+    const isStaticAsset = /\.(?:png|jpg|jpeg|svg|ico|txt|js|css|map|webp|avif|gif|woff2?)$/i.test(p);
+
+    if (!isApi && !isPlatformFile && !isStaticAsset) {
+      // Avoid rewriting the HTML file to itself
+      if (p !== '/coming-soon.html') {
+        return NextResponse.rewrite(new URL('/coming-soon.html', req.url));
+      }
+    }
+  }
+  // --- End Coming Soon rewrite ---
 
   // (rest of your middleware continues…)
   const res = NextResponse.next()
