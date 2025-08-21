@@ -21,12 +21,12 @@ export default function PLPClient({ locale, country, items, variant }) {
     console.info('[exp] plp_filters variant =', v);
   }, [v]);
 
-  // Standardized, clean grid: 1 / 2 / 3 columns
+  // Clean 1/2/3-col grid
   const grid =
-    'mx-auto max-w-6xl p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8';
+    'mx-auto max-w-6xl px-4 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-start';
 
   const card =
-    'block no-underline border rounded-xl overflow-hidden bg-white hover:shadow-md transition-shadow';
+    'group block no-underline border border-neutral-200 rounded-xl overflow-hidden bg-white hover:shadow-md transition';
 
   return (
     <main className={grid}>
@@ -40,8 +40,11 @@ export default function PLPClient({ locale, country, items, variant }) {
           href={`/${locale}/product/${p.handle}`}
           className={card}
         >
-          {/* Image tile (square, cover) */}
-          <div className="relative aspect-square bg-neutral-100">
+          {/* Square image WITHOUT relying on tailwind aspect-square */}
+          <div
+            className="relative w-full overflow-hidden bg-neutral-100"
+            style={{ paddingTop: '100%' }} // makes this box square
+          >
             {p.image?.url && (
               <Image
                 src={p.image.url}
@@ -54,7 +57,6 @@ export default function PLPClient({ locale, country, items, variant }) {
             )}
           </div>
 
-          {/* Text block */}
           <div className="p-4">
             <h3 className="text-sm font-medium text-neutral-900 truncate">
               {p.title}
