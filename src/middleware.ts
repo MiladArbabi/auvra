@@ -64,28 +64,40 @@ if (host === 'auvra.se' || host === 'www.auvra.se') {
   ) {
     return NextResponse.redirect(new URL(pathname, 'https://auvra.shop'), 308)
   }
+  // --- Coming Soon: allow private bypass via ?preview=<secret>
+const GATE_ON = process.env.NEXT_PUBLIC_COMING_SOON === '1';
+const BYPASS_COOKIE = 'gate_bypass';
+const BYPASS_PARAM  = 'preview';
+const BYPASS_SECRET = process.env.COMING_SOON_BYPASS_SECRET || '';
 
- // --- Coming Soon gate (env-toggled) ---
-// Serves /coming-soon.html for all non-asset, non-API GETs if NEXT_PUBLIC_COMING_SOON=1
-const comingSoon = process.env.NEXT_PUBLIC_COMING_SOON === '1';
+if (GATE_ON) {
+  const hasBypass = req.cookies.get(BYPASS_COOKIE)?.value === '1';
 
-if (comingSoon && req.method === 'GET') {
-  const p = url.pathname;
+  // Secret link sets a cookie and removes the query param
+  const q = url.searchParams.get(BYPASS_PARAM);
+  if (!hasBypass && BYPASS_SECRET && q === BYPASS_SECRET) {
+    const clean = new URL(req.url);
+    clean.searchParams.delete(BYPASS_PARAM);
+    const res = NextResponse.redirect(clean);
+    res.cookies.set(BYPASS_COOKIE, '1', {
+      path: '/', httpOnly: false, sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production', maxAge: 60 * 60 * 24 * 7
+    });
+    return res;
+  }
 
-  const isAllowed =
-    p === '/coming-soon.html' ||      // allow the static page itself
-    p === '/sitemap.xml'    ||        // keep platform files accessible
-    p === '/robots.txt'     ||
-    p.startsWith('/api')    ||        // allow APIs (health checks, etc.)
-    p.startsWith('/_next')  ||        // Next internals
-    /\.(?:png|jpg|jpeg|svg|ico|txt|js|css|map|webp|avif|gif|woff2?)$/i.test(p); // assets
-
-  if (!isAllowed) {
-    // keep the original URL, serve the static file
-    return NextResponse.rewrite(new URL('/coming-soon.html', req.url));
+  // Only gate when no bypass cookie
+  if (!hasBypass) {
+    const p = url.pathname;
+    const isApi = p.startsWith('/api');
+    const isPlatformFile = p === '/sitemap.xml' || p === '/robots.txt';
+    const isStatic = /\.(?:png|jpg|jpeg|svg|ico|txt|js|css|map|webp|avif|gif|woff2?)$/i.test(p);
+    if (!isApi && !isPlatformFile && !isStatic && p !== '/coming-soon.html') {
+      return NextResponse.redirect(new URL('/coming-soon.html', req.url), 307);
+    }
   }
 }
-// --- End coming soon gate ---
+// --- end bypass ---
 
   // (rest of your middleware continues…)
   const res = NextResponse.next()
