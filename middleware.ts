@@ -1,4 +1,4 @@
-// src/middleware.ts
+// middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -65,24 +65,24 @@ if (host === 'auvra.se' || host === 'www.auvra.se') {
     return NextResponse.redirect(new URL(pathname, 'https://auvra.shop'), 308)
   }
 
-  // --- Coming Soon rewrite (serve static HTML from /public) ---
-  // Rewrites any non-asset GET request to /coming-soon.html while we build the shop.
-  // Excludes API and platform files.
-  if (req.method === 'GET') {
-    const p = url.pathname;
+  // --- Coming Soon hard redirect (diagnostic) ---
+// Force every non-asset GET to /coming-soon.html to verify serving of the static file.
+// Excludes API and platform files. Keep your host redirects above this.
+if (req.method === 'GET') {
+  const p = url.pathname;
 
-    const isApi = p.startsWith('/api');
-    const isPlatformFile = p === '/sitemap.xml' || p === '/robots.txt';
-    const isStaticAsset = /\.(?:png|jpg|jpeg|svg|ico|txt|js|css|map|webp|avif|gif|woff2?)$/i.test(p);
+  const isApi = p.startsWith('/api');
+  const isPlatformFile = p === '/sitemap.xml' || p === '/robots.txt';
+  const isStaticAsset = /\.(?:png|jpg|jpeg|svg|ico|txt|js|css|map|webp|avif|gif|woff2?)$/i.test(p);
 
-    if (!isApi && !isPlatformFile && !isStaticAsset) {
-      // Avoid rewriting the HTML file to itself
-      if (p !== '/coming-soon.html') {
-        return NextResponse.rewrite(new URL('/coming-soon.html', req.url));
-      }
+  if (!isApi && !isPlatformFile && !isStaticAsset) {
+    if (p !== '/coming-soon.html') {
+      // 307 so method stays GET; swap to rewrite once verified
+      return NextResponse.redirect(new URL('/coming-soon.html', req.url), 307);
     }
   }
-  // --- End Coming Soon rewrite ---
+}
+// --- End Coming Soon hard redirect ---
 
   // (rest of your middleware continues…)
   const res = NextResponse.next()
@@ -138,5 +138,5 @@ if (host === 'auvra.se' || host === 'www.auvra.se') {
 
 // keep the matcher broad while testing
 export const config = {
-  matcher: ['/((?!_next/|.*\\.(?:png|jpg|jpeg|svg|ico|txt|js|css)$).*)'],
+  matcher: ['/((?!_next/).*)'],
 };
