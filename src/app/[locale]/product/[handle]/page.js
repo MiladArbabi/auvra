@@ -17,6 +17,7 @@ const QUERY = /* GraphQL */ `
       id title handle description descriptionHtml availableForSale
       featuredImage { url altText width height }
       seo { title description }
+      externalUrl: metafield(namespace: "custom", key: "external_url") { value }
       variants(first: 1) { edges { node {
         id availableForSale price { amount currencyCode }
       }}}
@@ -35,10 +36,11 @@ export default async function ProductPage({params}) {
   const p = data?.product;
   if (!p) return <div className="p-8">Not found.</div>;
 
+  const ext = p?.externalUrl?.value || null;
   const firstVar = p.variants?.edges?.[0]?.node;
   const amount   = firstVar?.price?.amount;
   const currency = firstVar?.price?.currencyCode || currencyForCountry(country);
-  const priceFmt = amount ? formatMoney(amount, currency, tag) : null;
+  const priceFmt = !ext && amount ? formatMoney(amount, currency, tag) : null;
 
   const inStock = (firstVar?.availableForSale ?? p.availableForSale)
     ? 'https://schema.org/InStock'
@@ -80,29 +82,44 @@ export default async function ProductPage({params}) {
             </>
           )}
           <div className="prose mt-4" dangerouslySetInnerHTML={{__html: p.descriptionHtml || ''}} />
-          <form id="buy" className="mt-6 space-x-3">
-            <input type="hidden" name="variantId" value={firstVar?.id || ''} />
-            <input
-              name="quantity"
-              type="number"
-              min="1"
-              defaultValue="1"
-              className="border rounded-xl px-3 py-2 w-24"
-              aria-label="Quantity"
-            />
-            <button
-              className="px-4 py-2 rounded-xl bg-black text-white disabled:opacity-50"
-              disabled={!firstVar?.id}
+        {ext ? (
+            <a
+              href={ext}
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              className="inline-flex items-center gap-2 rounded-xl px-4 py-2 border mt-6"
+              data-ext="true"
+              data-product-id={p.id}
             >
-              Checkout
-            </button>
-          </form>
-          {/* Fire analytics “begin_checkout” on submit (works with GA/Meta/TT if consent allows) */}
-          <BeginCheckout
-            formId="buy"
-            currency={currency}
-            value={amount ? Number(amount) : undefined}
-          />
+              {locale === 'sv' ? 'Se pris hos partner' : 'See price on partner site'}
+            </a>
+          ) : (
+            <>
+              <form id="buy" className="mt-6 space-x-3">
+                <input type="hidden" name="variantId" value={firstVar?.id || ''} />
+                <input
+                  name="quantity"
+                  type="number"
+                  min="1"
+                  defaultValue="1"
+                  className="border rounded-xl px-3 py-2 w-24"
+                  aria-label="Quantity"
+                />
+                <button
+                  className="px-4 py-2 rounded-xl bg-black text-white disabled:opacity-50"
+                  disabled={!firstVar?.id}
+                >
+                  Checkout
+                </button>
+              </form>
+              {/* Fire analytics “begin_checkout” on submit (works with GA/Meta/TT if consent allows) */}
+              <BeginCheckout
+                formId="buy"
+                currency={currency}
+                value={amount ? Number(amount) : undefined}
+              />
+            </>
+          )}
         </div>
       </div>
     </main>

@@ -10,6 +10,7 @@ import { experimentExposure } from '@/lib/track';
 export default function PLPClient({ locale, country, items, variant, page, totalPages, baseHref }) {
   const cookieV = useVariant('plp_filters');
   const v = variant ?? cookieV;
+  const partnerLabel = locale === 'sv' ? 'Se pris hos partner' : 'See price on partner site';
 
   // Single exposure per session
   useEffect(() => {
@@ -35,36 +36,53 @@ export default function PLPClient({ locale, country, items, variant, page, total
 
       {/* 3 × 3 grid */}
       <div className={grid}>
-        {items.map((p) => (
-          <Link
-            key={p.handle}
-            href={`/${locale}/product/${p.handle}`}
-            className={card}
-          >
-            {/* Square image wrapper that does NOT rely on Tailwind aspect plugin */}
-            <div className="relative aspect-square bg-neutral-100 overflow-hidden">
-              {p.image?.url && (
-                <Image
-                  src={p.image.url}
-                  alt={p.image.altText || p.title}
-                  fill
-                  className="object-cover"
-                  sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
-                  priority={false}
-                />
-              )}
-            </div>
+        {items.map((p) => {
+          const isExternal = Boolean(p.extUrl);
+          const label = isExternal ? partnerLabel : (p.price || '');
 
-            <div className="p-4">
-              <h3 className="text-sm font-medium text-neutral-900 truncate">
-                {p.title}
-              </h3>
-              {p.price && (
-                <p className="text-sm text-neutral-600 mt-1">{p.price}</p>
-              )}
-            </div>
-          </Link>
-        ))}
+          const CardInner = (
+            <>
+              <div className="relative aspect-square bg-neutral-100 overflow-hidden">
+                {p.image?.url && (
+                  <Image
+                    src={p.image.url}
+                    alt={p.image.altText || p.title}
+                    fill
+                    className="object-cover"
+                    sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
+                    priority={false}
+                  />
+                )}
+              </div>
+              <div className="p-4">
+                <h3 className="text-sm font-medium text-neutral-900 truncate">{p.title}</h3>
+                {label && <p className="text-sm text-neutral-600 mt-1">{label}</p>}
+              </div>
+            </>
+          );
+
+          return isExternal ? (
+            <a
+              key={p.handle}
+              href={p.extUrl}
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              className={card}
+              data-ext="true"
+              data-product-handle={p.handle}
+            >
+              {CardInner}
+            </a>
+          ) : (
+            <Link
+              key={p.handle}
+              href={`/${locale}/product/${p.handle}`}
+              className={card}
+            >
+              {CardInner}
+            </Link>
+          );
+        })}
       </div>
 
       {/* Pager row (bottom, centered) */}

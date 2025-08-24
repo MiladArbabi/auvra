@@ -24,6 +24,7 @@ const QUERY = /* GraphQL */ `
           title
           featuredImage { url altText width height }
           priceRange { minVariantPrice { amount currencyCode } }
+          externalUrl: metafield(namespace: "custom", key: "external_url") { value }
         }
       }
     }
@@ -83,8 +84,11 @@ export default async function CollectionPage({ params, searchParams }) {
           const amt = p.priceRange?.minVariantPrice?.amount;
           const ccy = p.priceRange?.minVariantPrice?.currencyCode || 'EUR';
           const price = amt ? formatMoney(amt, ccy, tag) : null;
-          return (
-            <Link key={p.handle} href={`/${locale}/product/${p.handle}`} className="block border rounded-xl p-4 hover:shadow-sm">
+          const ext = p.externalUrl?.value || null;
+          const partnerLabel = locale === 'sv' ? 'Se pris hos partner' : 'See price on partner site';
+
+          const CardInner = (
+            <>
               {p.featuredImage?.url && (
                 <Image
                   src={p.featuredImage.url}
@@ -96,7 +100,31 @@ export default async function CollectionPage({ params, searchParams }) {
                 />
               )}
               <h3 className="font-medium">{p.title}</h3>
-              {price && <p className="text-sm mt-1">{price}</p>}
+              <p className="text-sm mt-1">
+                {ext ? partnerLabel : (price || '')}
+              </p>
+            </>
+          );
+
+          return ext ? (
+            <a
+              key={p.handle}
+              href={ext}
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              className="block border rounded-xl p-4 hover:shadow-sm"
+              data-ext="true"
+              data-product-id={p.handle}
+            >
+              {CardInner}
+            </a>
+          ) : (
+            <Link
+              key={p.handle}
+              href={`/${locale}/product/${p.handle}`}
+              className="block border rounded-xl p-4 hover:shadow-sm"
+            >
+              {CardInner}
             </Link>
           );
         })}

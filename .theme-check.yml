@@ -1,8 +1,7 @@
-# Minimal config. Parser errors (e.g., LiquidHTMLSyntaxError) are errors by default.
-ignore: []               # don’t ignore specific checks
-include_categories: []   # run the default set of checks
-exclude_patterns:
-  - node_modules/**      # don’t scan deps
-  - .vercel/**           # optional: CI output
-  - **/dist/**           # optional: build artifacts
-  - **/build/**          # optional: build artifacts
+# .theme-check.yml
+# Minimal config for a non-theme repo. Parser errors still fail the run.
+ignore:
+  - MissingRequiredTemplateFiles
+  - RequiredDirectories
+  - DefaultLocale
+  - ValidJson   # keep ignored to avoid node_modules JSON noisex

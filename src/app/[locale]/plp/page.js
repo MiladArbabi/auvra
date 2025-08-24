@@ -15,6 +15,7 @@ const QUERY = /* GraphQL */ `
           title
           featuredImage { url altText width height }
           priceRange { minVariantPrice { amount currencyCode } }
+          externalUrl: metafield(namespace: "custom", key: "external_url") { value }
         }
       }
     }
@@ -59,6 +60,7 @@ export default async function PLP({ params, searchParams }) {
       title: p.title,
       price,
       image: p.featuredImage || null,
+      extUrl: p.externalUrl?.value || null,
     };
   });
 

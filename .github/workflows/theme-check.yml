@@ -21,4 +21,4 @@ jobs:
         run: gem install theme-check
 
       - name: Run theme-check (fail on errors)
-        run: theme-check --fail-level error .
+        run: theme-check --fail-level error snippets sections
