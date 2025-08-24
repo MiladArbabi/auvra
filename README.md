@@ -256,6 +256,9 @@ node scripts/list-products.mjs     # quick Storefront sanity check
 node scripts/list-collections.mjs
 ```
 
+## Admin docs
+- Affiliate products via External URL: docs/affiliate-metafields.md
+
 ---
 
 ## 13) License
