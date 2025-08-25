@@ -72,6 +72,19 @@ export default async function CollectionPage({ params, searchParams }) {
 
   const col = data?.collection;
   const items = data?.products?.edges?.map(e => e.node) || [];
+  const UTM_SOURCE = process.env.NEXT_PUBLIC_UTM_SOURCE || 'auvra';
+  function withUtm(u, { campaign, term }) {
+    try {
+      const url = new URL(u);
+      if (!url.searchParams.get('utm_source')) url.searchParams.set('utm_source', UTM_SOURCE);
+      if (!url.searchParams.get('utm_medium')) url.searchParams.set('utm_medium', 'affiliate');
+      if (!url.searchParams.get('utm_campaign')) url.searchParams.set('utm_campaign', campaign);
+      if (term && !url.searchParams.get('utm_term')) url.searchParams.set('utm_term', term);
+      return url.toString();
+    } catch {
+      return u;
+    }
+  }
 
   return (
     <main className="p-8">
@@ -109,7 +122,7 @@ export default async function CollectionPage({ params, searchParams }) {
           return ext ? (
             <a
               key={p.handle}
-              href={ext}
+              href={withUtm(ext, { campaign: 'collection_card', term: p.handle })}
               target="_blank"
               rel="nofollow sponsored noopener"
               className="block border rounded-xl p-4 hover:shadow-sm"

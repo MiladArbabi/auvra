@@ -6,6 +6,7 @@ import VatNote from '@/components/VatNote';
 import CountrySwitcher from '@/components/CountrySwitcher';
 import BeginCheckout from '@/components/BeginCheckout';
 import { currencyForCountry } from '@/lib/market';
+import PartnerCTA from '@/components/PartnerCTA';
 
 const QUERY = /* GraphQL */ `
   query ProductByHandle(
@@ -82,17 +83,15 @@ export default async function ProductPage({params}) {
             </>
           )}
           <div className="prose mt-4" dangerouslySetInnerHTML={{__html: p.descriptionHtml || ''}} />
-        {ext ? (
-            <a
+          {ext ? (
+            <PartnerCTA
               href={ext}
-              target="_blank"
-              rel="nofollow sponsored noopener"
+              locale={locale}
+              country={country}
+              handle={p.handle}
+              title={p.title}
               className="inline-flex items-center gap-2 rounded-xl px-4 py-2 border mt-6"
-              data-ext="true"
-              data-product-id={p.id}
-            >
-              {locale === 'sv' ? 'Se pris hos partner' : 'See price on partner site'}
-            </a>
+            />
           ) : (
             <>
               <form id="buy" className="mt-6 space-x-3">

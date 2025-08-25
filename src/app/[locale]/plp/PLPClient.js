@@ -1,3 +1,4 @@
+// src/app/[locale]/plp/PLPClient.js
 'use client';
 
 import { useEffect } from 'react';
@@ -5,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import CountrySwitcher from '@/components/CountrySwitcher';
 import { useVariant } from '@/lib/experiments-client';
-import { experimentExposure } from '@/lib/track';
+import { experimentExposure, affiliateClick } from '@/lib/track';
 
 export default function PLPClient({ locale, country, items, variant, page, totalPages, baseHref }) {
   const cookieV = useVariant('plp_filters');
@@ -22,11 +23,26 @@ export default function PLPClient({ locale, country, items, variant, page, total
   }, [v]);
 
   // Container + exact 3-cols on lg+
-  const wrapper = 'mx-auto max-w-6xl px-4 py-8';
-  const grid    = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start';
+  const wrapper = 'mx-auto max-w-7xl px-4 py-8';;
+  const grid    = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-start';
 
   const card =
     'group block no-underline border border-neutral-200 rounded-xl overflow-hidden bg-white hover:shadow-md transition';
+
+  const UTM_SOURCE = process.env.NEXT_PUBLIC_UTM_SOURCE || 'auvra';
+  function withUtm(u, { campaign, term }) {
+    try {
+      const url = new URL(u);
+      // only add if not already present
+      if (!url.searchParams.get('utm_source')) url.searchParams.set('utm_source', UTM_SOURCE);
+      if (!url.searchParams.get('utm_medium')) url.searchParams.set('utm_medium', 'affiliate');
+      if (!url.searchParams.get('utm_campaign')) url.searchParams.set('utm_campaign', campaign);
+      if (term && !url.searchParams.get('utm_term')) url.searchParams.set('utm_term', term);
+      return url.toString();
+    } catch {
+      return u;
+    }
+  }
 
   return (
     <main className={wrapper}>
@@ -36,20 +52,23 @@ export default function PLPClient({ locale, country, items, variant, page, total
 
       {/* 3 × 3 grid */}
       <div className={grid}>
-        {items.map((p) => {
+        {items.map((p, idx) => {
           const isExternal = Boolean(p.extUrl);
           const label = isExternal ? partnerLabel : (p.price || '');
+          const href = isExternal
+            ? withUtm(p.extUrl, { campaign: 'plp_card', term: p.handle })
+            : `/${locale}/product/${p.handle}`;
 
           const CardInner = (
             <>
-              <div className="relative aspect-square bg-neutral-100 overflow-hidden">
+             <div className="relative w-full pb-[100%] bg-neutral-100 overflow-hidden">
                 {p.image?.url && (
                   <Image
                     src={p.image.url}
                     alt={p.image.altText || p.title}
                     fill
                     className="object-cover"
-                    sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
+                    sizes="(min-width:1280px) 25vw, (min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
                     priority={false}
                   />
                 )}
@@ -60,23 +79,32 @@ export default function PLPClient({ locale, country, items, variant, page, total
               </div>
             </>
           );
-
           return isExternal ? (
             <a
               key={p.handle}
-              href={p.extUrl}
+              href={href}
               target="_blank"
               rel="nofollow sponsored noopener"
               className={card}
-              data-ext="true"
-              data-product-handle={p.handle}
+              onClick={() => {
+                affiliateClick({
+                  location: 'plp',
+                  locale,
+                  country,
+                  product_handle: p.handle,
+                  product_title: p.title,
+                  position: idx + 1,
+                  partner_url: href,
+                  campaign: 'plp_card',
+                });
+              }}
             >
               {CardInner}
             </a>
           ) : (
             <Link
               key={p.handle}
-              href={`/${locale}/product/${p.handle}`}
+              href={href}
               className={card}
             >
               {CardInner}

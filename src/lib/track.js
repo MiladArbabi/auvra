@@ -123,3 +123,40 @@ export function experimentExposure({ id, variant }) {
     window.ttq.track('ExperimentExposure', { experiment_id: id, variant });
   }
 }
+
+// ---------- Affiliate outbound click ----------
+// location: 'plp' | 'collection' | 'pdp'
+// partner_url: final URL (with UTM)
+export function affiliateClick({
+  location,
+  locale,
+  country,
+  product_handle,
+  product_title,
+  position,        // optional number for lists
+  partner_url,
+  campaign         // e.g., 'plp_card' | 'collection_card' | 'pdp_cta'
+}) {
+  const params = {
+    location,
+    locale,
+    country,
+    product_handle,
+    product_title,
+    position,
+    partner_url,
+    campaign,
+  };
+  // GA4 custom event
+  ga('affiliate_click', params);
+
+  // Meta custom event
+  if (allow('marketing') && typeof window !== 'undefined' && typeof window.fbq === 'function') {
+    window.fbq('trackCustom', 'AffiliateClick', params);
+  }
+
+  // TikTok custom event
+  if (allow('marketing') && typeof window !== 'undefined' && window.ttq?.track) {
+    window.ttq.track('AffiliateClick', params);
+  }
+}
