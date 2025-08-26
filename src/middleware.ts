@@ -1,4 +1,4 @@
-// middleware.ts
+// src/middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -57,12 +57,15 @@ if (host === 'auvra.se' || host === 'www.auvra.se') {
   return NextResponse.redirect(new URL(destPath, 'https://auvra.shop'), 308);
 }
 
-  // *.online / *.info → auvra.shop/*
+  // *.online / *.info → auvra.shop/en (preserve deeper paths under /en)
   if (
     host === 'auvra.online' || host === 'www.auvra.online' ||
     host === 'auvra.info'   || host === 'www.auvra.info'
   ) {
-    return NextResponse.redirect(new URL(pathname, 'https://auvra.shop'), 308)
+    let destPath = pathname;
+    if (destPath === '/' || destPath === '') destPath = '/en/';
+    else if (!destPath.startsWith('/en/')) destPath = `/en${destPath}`;
+    return NextResponse.redirect(new URL(destPath, 'https://auvra.shop'), 308);
   }
   // --- Coming Soon: allow private bypass via ?preview=<secret>
 const GATE_ON = process.env.NEXT_PUBLIC_COMING_SOON === '1';
@@ -101,6 +104,9 @@ if (GATE_ON) {
 
   // (rest of your middleware continues…)
   const res = NextResponse.next()
+
+  // HSTS for all hosts (2 years, include subdomains, allow preload)
+  res.headers.set('strict-transport-security', 'max-age=63072000; includeSubDomains; preload')
 
   // Debug header so we can see middleware hits via curl -I
   if (process.env.NODE_ENV !== 'production') res.headers.set('x-mw', 'hit');
