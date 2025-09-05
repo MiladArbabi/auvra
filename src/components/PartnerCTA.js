@@ -1,6 +1,6 @@
 // src/components/PartnerCTA.js
  'use client';
-
+import Button from '@/components/ui/Button';
 import { affiliateClick } from '@/lib/track';
 
 export default function PartnerCTA({ href, locale, country, handle, title, className }) {
@@ -20,8 +20,9 @@ export default function PartnerCTA({ href, locale, country, handle, title, class
   const out = withUtm(href);
 
   return (
-    <a
+    <Button
       href={out}
+      variant="primary"
       target="_blank"
       rel="nofollow sponsored noopener"
       className={className}
@@ -38,6 +39,6 @@ export default function PartnerCTA({ href, locale, country, handle, title, class
       }}
     >
       {locale === 'sv' ? 'Se pris hos partner' : 'See price on partner site'}
-    </a>
+    </Button>
   );
 }
