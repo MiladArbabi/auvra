@@ -1,9 +1,15 @@
 // src/components/layout/Footer.js
+'use client';
+
 import Link from 'next/link';
 import ManageCookies from '@/components/ManageCookies';
+import { useLocale, useTranslations } from 'next-intl';
+import { siteConfig } from '@/config/site';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const t = useTranslations('nav');
+  const locale = useLocale();
 
   return (
      <footer className="border-t border-secondary/50 bg-secondary/20">
@@ -22,10 +28,15 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold mb-2">Explore</h3>
             <nav className="flex flex-col gap-1 text-sm text-foreground/80">
-              {/* TODO: Replace with localized links */}
-              <Link href="/en/collections/all" className="hover:text-primary hover:underline">Shop All</Link>
-              <Link href="#" className="hover:text-primary hover:underline">Contact</Link>
-              <Link href="/en/privacy" className="hover:text-primary hover:underline">Privacy Policy</Link>
+              {siteConfig.footerNav.map((item) => (
+                <Link
+                  key={item.href}
+                  href={`/${locale}${item.href}`}
+                  className="hover:text-primary hover:underline"
+                >
+                  {t(item.t_key)}
+                </Link>
+              ))}
             </nav>
           </div>
 

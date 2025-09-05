@@ -1,4 +1,10 @@
 {
   "Home": { "title": "Auvra", "subtitle": "Headless Shopify + Next.js-butik (SV/EN) — pågående arbete." },
-  "partner_price_label": "Se pris hos partner"
+  "partner_price_label": "Se pris hos partner",
+  "nav": {
+    "shopAll": "Handla allt",
+    "about": "Om oss",
+    "contact": "Kontakt",
+    "privacyPolicy": "Integritetspolicy"
+  }
 }

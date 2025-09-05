@@ -1,5 +1,11 @@
 
 {
   "Home": { "title": "Auvra", "subtitle": "Headless Shopify + Next.js storefront (SV/EN) — work in progress." },
-  "partner_price_label": "See price on partner site"
+  "partner_price_label": "See price on partner site",
+  "nav": {
+    "shopAll": "Shop All",
+    "about": "About",
+    "contact": "Contact",
+    "privacyPolicy": "Privacy Policy"
+  }
 }

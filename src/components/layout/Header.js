@@ -1,8 +1,14 @@
 // src/components/layout/Header.js
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
+import { useLocale, useTranslations } from 'next-intl';
+import { siteConfig } from '@/config/site';
 
 export default function Header() {
+  const t = useTranslations('nav');
+  const locale = useLocale();
   return (
     // Updated: Using brand colors
     <header className="sticky top-0 z-20 border-b border-secondary/50 bg-background/80 backdrop-blur">
@@ -18,10 +24,15 @@ export default function Header() {
         </Link>
         {/* Updated: Using brand colors */}
         <nav className="hidden md:flex gap-6 text-sm font-medium text-foreground/80">
-          {/* TODO: Replace with localized links from Issue #58 */}
-          <Link href="/en/collections/all" className="hover:text-primary hover:underline">Shop All</Link>
-          <Link href="#" className="hover:text-primary hover:underline">Best Sellers</Link>
-          <Link href="#" className="hover:text-primary hover:underline">About</Link>
+          {siteConfig.mainNav.map((item) => (
+            <Link
+              key={item.href}
+              href={`/${locale}${item.href}`}
+              className="hover:text-primary hover:underline"
+            >
+              {t(item.t_key)}
+            </Link>
+          ))}
         </nav>
         <div>
           {/* Placeholder for future icons like cart, search, etc. */}
