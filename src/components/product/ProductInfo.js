@@ -30,19 +30,21 @@ export default function ProductInfo({ product, country, locale }) {
         </div>
       )}
 
+      {/* CTA section is now moved up, right below the price */}
+      <div className="mt-6">
+        {ext ? (
+          <PartnerCTA href={ext} locale={locale} country={country} {...product} />
+        ) : (
+          <AddToCart variantId={firstVar?.id} currency={currency} amount={amount} />
+        )}
+      </div>
+
       {/* Use a Tailwind typography plugin class for rendered HTML */}
       <div
         className="prose prose-lg mt-6 text-foreground/80"
         dangerouslySetInnerHTML={{ __html: descriptionHtml || '' }}
       />
 
-      {ext ? (
-        <div className="mt-6">
-          <PartnerCTA href={ext} locale={locale} country={country} {...product} />
-        </div>
-      ) : (
-        <AddToCart variantId={firstVar?.id} currency={currency} amount={amount} />
-      )}
     </div>
   );
 }
