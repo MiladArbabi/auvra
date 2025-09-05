@@ -1,8 +1,16 @@
 // src/app/layout.js
 import {Suspense} from 'react';
+import { Montserrat } from 'next/font/google';
 import {ConsentProvider} from '@/components/consent/ConsentContext';
 import ConsentBanner from '@/components/consent/ConsentBanner';
 import AnalyticsLoader from '@/components/analytics/AnalyticsLoader';
+import './globals.css';
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-montserrat',
+});
 
 export const metadata = {
   alternates: { languages: { en: '/en', sv: '/sv' } },
@@ -11,7 +19,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+      <html lang="en" className={montserrat.variable} suppressHydrationWarning>
       <body>
         {/* Meta Pixel <noscript> fallback */}
         {process.env.NEXT_PUBLIC_META_PIXEL_ID ? (
