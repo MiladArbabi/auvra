@@ -5,6 +5,7 @@ import {ConsentProvider} from '@/components/consent/ConsentContext';
 import ConsentBanner from '@/components/consent/ConsentBanner';
 import AnalyticsLoader from '@/components/analytics/AnalyticsLoader';
 import './globals.css';
+import './theme.css'
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -20,7 +21,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
       <html lang="en" className={montserrat.variable} suppressHydrationWarning>
-      <body className="bg-background text-foreground">
+      <body>
         {/* Meta Pixel <noscript> fallback */}
         {process.env.NEXT_PUBLIC_META_PIXEL_ID ? (
           <noscript>

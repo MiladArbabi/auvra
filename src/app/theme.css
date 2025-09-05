@@ -1,0 +1,36 @@
+/* src/app/theme.css */
+
+/* Define CSS Variables for your entire color palette and font */
+:root {
+  --font-montserrat: 'Montserrat', sans-serif;
+
+  --auvra-bg: #f1faee;
+  --auvra-text: #1d3557;
+  --auvra-primary: #457b9d;
+  --auvra-secondary: #a8dadc;
+  --auvra-accent: #e63946;
+}
+
+/* Apply the base font and colors to the entire site */
+body {
+  background-color: var(--auvra-bg);
+  color: var(--auvra-text);
+  font-family: var(--font-montserrat);
+}
+
+/* You can add simple, reusable color classes here if needed */
+.text-primary {
+  color: var(--auvra-primary);
+}
+.bg-primary {
+  background-color: var(--auvra-primary);
+}
+.bg-secondary {
+  background-color: var(--auvra-secondary);
+}
+.text-accent {
+  color: var(--auvra-accent);
+}
+.bg-accent {
+  background-color: var(--auvra-accent);
+}
