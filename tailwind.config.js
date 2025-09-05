@@ -1,5 +1,4 @@
 // tailwind.config.js
-
 const { fontFamily } = require('tailwindcss/defaultTheme');
 
 /** @type {import('tailwindcss').Config} */
@@ -8,11 +7,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: '#f1faee',
-        foreground: '#1d3557',
-        primary: '#457b9d',
-        secondary: '#a8dadc',
-        accent: '#e63946',
+        background: 'rgb(var(--color-background) / <alpha-value>)',
+        foreground: 'rgb(var(--color-foreground) / <alpha-value>)',
+        primary: 'rgb(var(--color-primary) / <alpha-value>)',
+        secondary: 'rgb(var(--color-secondary) / <alpha-value>)',
+        accent: 'rgb(var(--color-accent) / <alpha-value>)',
       },
       fontFamily: {
         sans: ['var(--font-montserrat)', ...fontFamily.sans],

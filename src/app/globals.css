@@ -1,5 +1,16 @@
 /* src/app/globals.css */
-
-/* Import Tailwind's base styles (preflight) and utilities */
-@import "tailwindcss/preflight";
+@import "tailwindcss/theme";
 @import "tailwindcss/utilities";
+
+/* Define design tokens as CSS variables */
+@layer base {
+  :root {
+    --font-montserrat: 'Montserrat', sans-serif;
+
+    --color-background: 241 250 238; /* #f1faee */
+    --color-foreground: 29 53 87;   /* #1d3557 */
+    --color-primary: 69 123 157;  /* #457b9d */
+    --color-secondary: 168 218 220; /* #a8dadc */
+    --color-accent: 230 57 70;    /* #e63946 */
+  }
+}

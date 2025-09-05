@@ -20,7 +20,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
       <html lang="en" className={montserrat.variable} suppressHydrationWarning>
-      <body>
+      <body className="bg-background text-foreground">
         {/* Meta Pixel <noscript> fallback */}
         {process.env.NEXT_PUBLIC_META_PIXEL_ID ? (
           <noscript>
