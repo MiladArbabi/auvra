@@ -1,6 +1,7 @@
 // src/app/[locale]/plp/page.js
 import { sf } from '@/lib/shopify';
-import { getCountry, localeToLanguage, localeTag, formatMoney } from '@/lib/market';
+import { getCountry } from '@/lib/market';
+import { localeToLanguage, localeTag, formatMoney } from '@/lib/market-utils';
 import PLPClient from './PLPClient';
 import { headers } from 'next/headers';
 import { getVariantFromHeaders } from '@/lib/experiments';
