@@ -71,7 +71,11 @@ export default async function ProductPage({params}) {
     <main className="min-h-screen p-6">
       <script type="application/ld+json" dangerouslySetInnerHTML={{__html: JSON.stringify(ld)}} />
       <div className="mx-auto max-w-5xl grid gap-8 md:grid-cols-2">
-        <ProductGallery title={product.title} featuredImage={product.featuredImage} />
+        <ProductGallery 
+        title={product.title} 
+        featuredImage={product.featuredImage}
+        images={product.images.edges.map(e => e.node)}
+        />
         <ProductInfo product={product} country={country} locale={locale} />
       </div>
     </main>
