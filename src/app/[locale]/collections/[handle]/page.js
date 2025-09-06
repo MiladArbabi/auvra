@@ -3,8 +3,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {sf} from '@/lib/shopify';
 import Filters from '@/components/CollectionFilters';
-import {getCountry, localeToLanguage, localeTag, formatMoney} from '@/lib/market';
+import { getCountry } from '@/lib/market';
+import { localeToLanguage, localeTag, formatMoney } from '@/lib/market-utils';
 import CountrySwitcher from '@/components/CountrySwitcher';
+import ProductCard from '@/components/product/ProductCard';
 
 const QUERY = /* GraphQL */ `
   query CollectionWithProducts(
@@ -92,55 +94,10 @@ export default async function CollectionPage({ params, searchParams }) {
       {col?.description && <p className="text-neutral-600 mt-1">{col.description}</p>}
       <div className="mt-3"><CountrySwitcher current={country} /></div>
       <Filters />
-      <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {items.map(p => {
-          const amt = p.priceRange?.minVariantPrice?.amount;
-          const ccy = p.priceRange?.minVariantPrice?.currencyCode || 'EUR';
-          const price = amt ? formatMoney(amt, ccy, tag) : null;
-          const ext = p.externalUrl?.value || null;
-          const partnerLabel = locale === 'sv' ? 'Se pris hos partner' : 'See price on partner site';
-
-          const CardInner = (
-            <>
-              {p.featuredImage?.url && (
-                <Image
-                  src={p.featuredImage.url}
-                  alt={p.featuredImage.altText || p.title}
-                  width={p.featuredImage.width || 800}
-                  height={p.featuredImage.height || 800}
-                  className="rounded-lg mb-3"
-                  sizes="(min-width:1024px) 25vw, (min-width:768px) 33vw, 50vw"
-                />
-              )}
-              <h3 className="font-medium">{p.title}</h3>
-              <p className="text-sm mt-1">
-                {ext ? partnerLabel : (price || '')}
-              </p>
-            </>
-          );
-
-          return ext ? (
-            <a
-              key={p.handle}
-              href={withUtm(ext, { campaign: 'collection_card', term: p.handle })}
-              target="_blank"
-              rel="nofollow sponsored noopener"
-              className="block border rounded-xl p-4 hover:shadow-sm"
-              data-ext="true"
-              data-product-id={p.handle}
-            >
-              {CardInner}
-            </a>
-          ) : (
-            <Link
-              key={p.handle}
-              href={`/${locale}/product/${p.handle}`}
-              className="block border rounded-xl p-4 hover:shadow-sm"
-            >
-              {CardInner}
-            </Link>
-          );
-        })}
+      <div className="mt-8 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+       {items.map(product => (
+          <ProductCard key={product.handle} product={product} locale={locale} />
+        ))}
       </div>
     </main>
   );

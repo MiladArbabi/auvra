@@ -1,7 +1,7 @@
 // src/app/[locale]/product/[handle]/page.js
 import {sf} from '@/lib/shopify';
-import {getCountry, localeTag, formatMoney} from '@/lib/market';
-import { currencyForCountry, localeToLanguage } from '@/lib/market-utils';
+import { getCountry } from '@/lib/market';
+import { localeToLanguage, localeTag, formatMoney } from '@/lib/market-utils';
 import ProductGallery from '@/components/product/ProductGallery';
 import ProductInfo from '@/components/product/ProductInfo';
 
