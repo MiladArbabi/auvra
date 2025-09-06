@@ -1,4 +1,4 @@
-import { isEU, shippingNote } from '@/lib/market';
+import { isEU, shippingNote } from '@/lib/market-utils';
 
 export default function VatNote({ country, tag }) {
   const eu = isEU(country);

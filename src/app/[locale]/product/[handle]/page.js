@@ -1,7 +1,7 @@
 // src/app/[locale]/product/[handle]/page.js
 import {sf} from '@/lib/shopify';
-import {getCountry, localeToLanguage, localeTag, formatMoney} from '@/lib/market';
-import { currencyForCountry } from '@/lib/market';
+import {getCountry, localeTag, formatMoney} from '@/lib/market';
+import { currencyForCountry, localeToLanguage } from '@/lib/market-utils';
 import ProductGallery from '@/components/product/ProductGallery';
 import ProductInfo from '@/components/product/ProductInfo';
 
@@ -13,6 +13,10 @@ const QUERY = /* GraphQL */ `
   ) @inContext(country: $country, language: $language) {
     product(handle: $handle) {
       id title handle description descriptionHtml availableForSale
+      options {
+        name
+        values 
+      }
       featuredImage { url altText width height }
       images(first: 10) {
         edges {
@@ -26,9 +30,20 @@ const QUERY = /* GraphQL */ `
       }
       seo { title description }
       externalUrl: metafield(namespace: "custom", key: "external_url") { value }
-      variants(first: 1) { edges { node {
-        id availableForSale price { amount currencyCode }
-      }}}
+      variants(first: 20) {
+        edges {
+          node {
+            id
+            title
+            availableForSale
+            price { amount currencyCode }
+            selectedOptions {
+              name
+              value
+            }
+          }
+        }
+      }
     }
   }
 `;

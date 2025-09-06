@@ -4,11 +4,11 @@
 import Button from '@/components/ui/Button';
 import BeginCheckout from '@/components/BeginCheckout';
 
-export default function AddToCart({ variantId, currency, amount }) {
+export default function AddToCart({ selectedVariant }) {
   return (
     <>
       <form id="buy" className="mt-6 flex items-center gap-4">
-        <input type="hidden" name="variantId" value={variantId || ''} />
+        <input type="hidden" name="variantId" value={selectedVariant?.id || ''} />
         <input
           name="quantity"
           type="number"
@@ -21,15 +21,15 @@ export default function AddToCart({ variantId, currency, amount }) {
           type="submit"
           variant="primary"
           className="flex-grow"
-          disabled={!variantId}
+          disabled={!selectedVariant?.id || !selectedVariant.availableForSale}
         >
-          Add to Cart
+          {selectedVariant?.availableForSale ? 'Add to Cart' : 'Out of Stock'}
         </Button>
       </form>
       <BeginCheckout
         formId="buy"
-        currency={currency}
-        value={amount ? Number(amount) : undefined}
+        currency={selectedVariant?.price.currencyCode}
+        value={selectedVariant?.price.amount ? Number(selectedVariant.price.amount) : undefined}
       />
     </>
   );
