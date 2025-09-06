@@ -14,6 +14,16 @@ const QUERY = /* GraphQL */ `
     product(handle: $handle) {
       id title handle description descriptionHtml availableForSale
       featuredImage { url altText width height }
+      images(first: 10) {
+        edges {
+          node {
+            url
+            altText
+            width
+            height
+          }
+        }
+      }
       seo { title description }
       externalUrl: metafield(namespace: "custom", key: "external_url") { value }
       variants(first: 1) { edges { node {
