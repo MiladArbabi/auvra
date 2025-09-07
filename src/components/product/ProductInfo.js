@@ -8,6 +8,7 @@ import VatNote from '@/components/VatNote';
 import PartnerCTA from '@/components/PartnerCTA';
 import AddToCart from './AddToCart';
 import VariantSelector from './VariantSelector';
+import { Accordion } from '@/components/ui/Accordion';
 
 export default function ProductInfo({ product, country, locale }) {
   const tag = localeTag(locale, country);
@@ -15,11 +16,26 @@ export default function ProductInfo({ product, country, locale }) {
   const [selectedVariant, setSelectedVariant] = useState(variants[0]);
 
   // Extract product details
-  const { title, descriptionHtml, externalUrl, options } = product;
+  const { title, descriptionHtml, ingredients, howToUse, externalUrl, options } = product;
   const ext = externalUrl?.value || null;
   const priceFmt = !ext && selectedVariant?.price?.amount 
     ? formatMoney(selectedVariant.price.amount, selectedVariant.price.currencyCode, tag) 
     : null;
+
+  // Build the items for the accordion, only including sections that have content
+  const accordionItems = [];
+  if (descriptionHtml) {
+    accordionItems.push({
+      title: 'Description',
+      content: <div dangerouslySetInnerHTML={{ __html: descriptionHtml }} />,
+    });
+  }
+  if (ingredients?.value) {
+    accordionItems.push({ title: 'Ingredients', content: ingredients.value });
+  }
+  if (howToUse?.value) {
+    accordionItems.push({ title: 'How to Use', content: howToUse.value });
+  }
 
   return (
     <div>
@@ -59,12 +75,6 @@ export default function ProductInfo({ product, country, locale }) {
         />
       )}
 
-      {/* Use a Tailwind typography plugin class for rendered HTML */}
-      <div
-        className="prose prose-lg mt-6 text-foreground/80"
-        dangerouslySetInnerHTML={{ __html: descriptionHtml || '' }}
-      />
-
     {ext ? (
          <div className="mt-6">
            <PartnerCTA href={ext} locale={locale} country={country} {...product} />
@@ -72,6 +82,11 @@ export default function ProductInfo({ product, country, locale }) {
        ) : (
           <AddToCart selectedVariant={selectedVariant} />
        )}
+
+       {/* Render the accordion with our structured content */}
+        <div className="mt-8">
+          <Accordion items={accordionItems} />
+        </div>
      </div>
   );
 }
