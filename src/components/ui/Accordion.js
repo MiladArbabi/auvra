@@ -6,7 +6,7 @@ import { useState } from 'react';
 // The wrapper component that holds all the items
 export function Accordion({ items }) {
   return (
-    <div className="w-full divide-y divide-secondary/50 rounded-xl border border-secondary/50">
+    <div className="w-full divide-y rounded-xl border auvra-border auvra-divide">
       {items.map((item, index) => (
         <AccordionItem key={index} title={item.title}>
           {item.content}

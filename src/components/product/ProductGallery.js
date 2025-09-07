@@ -31,8 +31,8 @@ export default function ProductGallery({ images, title, featuredImage }) {
           <li key={image.url} className="h-20 w-20">
             <button
               onClick={() => setSelectedImage(image)}
-              className={`h-full w-full rounded-lg transition hover:ring-2 hover:ring-primary/50 focus:outline-none focus:ring-2 focus:ring-primary ${
-                selectedImage.url === image.url ? 'ring-2 ring-primary' : 'ring-1 ring-secondary'
+              className={`h-full w-full rounded-lg transition hover:ring-2 hover:ring-primary/50 focus:outline-none focus:ring-2 focus:ring-primary ring-1 ${
+                selectedImage.url === image.url ? 'ring-2 ring-primary' : 'auvra-ring-secondary'
               }`}
             >
               <Image
