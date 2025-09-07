@@ -25,8 +25,9 @@ const QUERY = /* GraphQL */ `
 
 const PAGE_SIZE = 9;
 
-export default async function PLP({ params, searchParams }) {
+export default async function PLP({ params, searchParams: searchParamsProp }) {
   const { locale } = await params;
+  const searchParams = await searchParamsProp;
   const pageNum = Math.max(1, parseInt(searchParams?.page, 10) || 1);
 
   const country  = await getCountry('SE');
