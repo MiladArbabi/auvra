@@ -34,3 +34,19 @@ body {
 .bg-accent {
   background-color: rgb(var(--color-accent));
 }
+
+/*
+  Custom utility classes to apply our theme's secondary color
+  for borders, dividers, and rings.
+*/
+.auvra-border {
+  border-color: rgb(var(--color-secondary) / 0.5);
+}
+
+.auvra-divide > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgb(var(--color-secondary) / 0.5);
+}
+
+.auvra-ring-secondary {
+  --tw-ring-color: rgb(var(--color-secondary));
+}

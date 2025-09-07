@@ -11,7 +11,7 @@ export default function ProductCard({ product, locale }) {
   const productPageUrl = `/${locale}/product/${handle}`;
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-lg border border-secondary/50 bg-background shadow-sm transition-shadow hover:shadow-md">
+    <article className="group relative flex flex-col overflow-hidden rounded-lg border bg-background shadow-sm transition-shadow hover:shadow-md auvra-border">
       <Link href={externalUrl || productPageUrl} target={externalUrl ? '_blank' : '_self'}>
         <div className="aspect-h-1 aspect-w-1 bg-secondary/20">
           {featuredImage && (
