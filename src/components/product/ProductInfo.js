@@ -13,7 +13,8 @@ import { Accordion } from '@/components/ui/Accordion';
 export default function ProductInfo({ product, country, locale }) {
   const tag = localeTag(locale, country);
   const variants = product.variants.edges.map(e => e.node);
-  const [selectedVariant, setSelectedVariant] = useState(variants[0]);
+  const availableVariants = variants.filter(v => v.availableForSale);
+  const [selectedVariant, setSelectedVariant] = useState(availableVariants[0] || variants[0]);
 
   // Extract product details
   const { title, descriptionHtml, ingredients, howToUse, externalUrl, options } = product;
@@ -66,10 +67,11 @@ export default function ProductInfo({ product, country, locale }) {
       )}
 
       {/* Render the Variant Selector if the product is not external */}
-      {!ext && (
+      {!ext && availableVariants.length > 0 && (
         <VariantSelector
           options={options}
-          variants={variants}
+          variants={variants} 
+          availableVariants={availableVariants}
           selectedVariant={selectedVariant}
           onVariantChange={setSelectedVariant}
         />

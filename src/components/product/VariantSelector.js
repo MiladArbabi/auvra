@@ -3,7 +3,7 @@
 
 import { useMemo } from 'react';
 
-export default function VariantSelector({ options, variants, selectedVariant, onVariantChange }) {
+export default function VariantSelector({ options, variants, availableVariants, selectedVariant, onVariantChange }) {
   // Memoize the derived options map to prevent re-calculation on every render
   const optionsMap = useMemo(() => {
     const map = new Map();
@@ -16,6 +16,18 @@ export default function VariantSelector({ options, variants, selectedVariant, on
     }
     return map;
   }, [options, selectedVariant]);
+
+  // Create a set of all option values that are actually available for purchase.
+  // E.g., {'Small', 'Red', 'Large', 'Blue'}
+  const availableValues = useMemo(() => {
+    const values = new Set();
+    for (const variant of availableVariants) {
+      for (const option of variant.selectedOptions) {
+        values.add(option.value);
+      }
+    }
+    return values;
+  }, [availableVariants]);
 
   // When a user clicks an option (e.g., "Large"), find the first variant that matches
   const handleOptionClick = (optionName, optionValue) => {
@@ -35,14 +47,18 @@ export default function VariantSelector({ options, variants, selectedVariant, on
           <div className="mt-2 flex flex-wrap gap-2">
             {option.values.map(value => {
               const isActive = option.selectedValue === value;
+              const isAvailable = availableValues.has(value);
+
               return (
                 <button
                   key={value}
                   onClick={() => handleOptionClick(option.name, value)}
-                  className={`rounded-full border px-4 py-1.5 text-sm transition ${
+                  disabled={!isAvailable}
+                  className={`rounded-full border px-4 py-1.5 text-sm transition disabled:opacity-50 disabled:cursor-not-allowed ${
                     isActive
                       ? 'border-primary bg-primary text-background'
-                      : 'border-secondary bg-transparent hover:bg-secondary/50'
+                      : 'border-secondary bg-transparent hover:bg-secondary/50',
+                      !isAvailable && 'line-through' // Add a line-through for unavailable options
                   }`}
                 >
                   {value}
