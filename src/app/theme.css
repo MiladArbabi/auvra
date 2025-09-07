@@ -4,33 +4,33 @@
 :root {
   --font-montserrat: 'Montserrat', sans-serif;
 
-  --auvra-bg: #f1faee;
-  --auvra-text: #1d3557;
-  --auvra-primary: #457b9d;
-  --auvra-secondary: #a8dadc;
-  --auvra-accent: #e63946;
+  --color-background: 255 255 255; /* #FFFFFF */
+  --color-foreground: 29 53 87;   /* #1d3557 */
+  --color-primary: 69 123 157;  /* #457b9d */
+  --color-secondary: 224 224 224; /* #e0e0e0 */
+  --color-accent: 230 57 70;    /* #e63946 */
 }
 
 /* Apply the base font and colors to the entire site */
 body {
-  background-color: var(--auvra-bg);
-  color: var(--auvra-text);
+  background-color: rgb(var(--color-background));
+  color: rgb(var(--color-foreground));
   font-family: var(--font-montserrat);
 }
 
 /* You can add simple, reusable color classes here if needed */
 .text-primary {
-  color: var(--auvra-primary);
+  color: rgb(var(--color-primary));
 }
 .bg-primary {
-  background-color: var(--auvra-primary);
+  background-color: rgb(var(--color-primary));
 }
 .bg-secondary {
-  background-color: var(--auvra-secondary);
+  background-color: rgb(var(--color-secondary));
 }
 .text-accent {
-  color: var(--auvra-accent);
+  color: rgb(var(--color-accent));
 }
 .bg-accent {
-  background-color: var(--auvra-accent);
+  background-color: rgb(var(--color-accent));
 }

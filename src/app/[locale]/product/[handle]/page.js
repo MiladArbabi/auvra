@@ -13,6 +13,8 @@ const QUERY = /* GraphQL */ `
   ) @inContext(country: $country, language: $language) {
     product(handle: $handle) {
       id title handle description descriptionHtml availableForSale
+      ingredients: metafield(namespace: "custom", key: "ingredients") { value }
+      howToUse: metafield(namespace: "custom", key: "how_to_use") { value }
       options {
         name
         values 
