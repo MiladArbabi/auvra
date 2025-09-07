@@ -35,6 +35,20 @@ export default function ProductInfo({ product, country, locale }) {
         </div>
       )}
 
+      {/* Stock Status Indicator */}
+      {!ext && selectedVariant && (
+        <div className="mt-4 flex items-center">
+          <div
+            className={`h-2.5 w-2.5 rounded-full ${
+              selectedVariant.availableForSale ? 'bg-green-500' : 'bg-red-500'
+            }`}
+          />
+          <p className="ml-2 text-sm font-medium">
+            {selectedVariant.availableForSale ? 'In Stock' : 'Out of Stock'}
+          </p>
+        </div>
+      )}
+
       {/* Render the Variant Selector if the product is not external */}
       {!ext && (
         <VariantSelector
