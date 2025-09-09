@@ -1,4 +1,6 @@
 // src/lib/shopify.js
+import { localeToLanguage } from './market-utils';
+
 const domain = process.env.SHOPIFY_STORE_DOMAIN;
 const apiVersion = process.env.SHOPIFY_API_VERSION || '2025-07';
 const endpoint = `https://${domain}/api/${apiVersion}/graphql.json`;
@@ -52,4 +54,25 @@ export async function sf(query, variables = {}) {
     throw new Error(`[storefront] ${msg}`);
   }
   return json.data;
+}
+
+const collectionsQuery = /* GraphQL */ `
+  query Collections($country: CountryCode, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
+    collections(first: 20) {
+      edges {
+        node {
+          id
+          title
+          handle
+        }
+      }
+    }
+  }
+`;
+
+export async function getCollections(locale) {
+  const language = localeToLanguage(locale);
+  const data = await sf(collectionsQuery, { language });
+  return data?.collections?.edges?.map(e => e.node) || [];
 }
