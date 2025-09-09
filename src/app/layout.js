@@ -4,6 +4,7 @@ import { Montserrat } from 'next/font/google';
 import {ConsentProvider} from '@/components/consent/ConsentContext';
 import ConsentBanner from '@/components/consent/ConsentBanner';
 import AnalyticsLoader from '@/components/analytics/AnalyticsLoader';
+import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import './globals.css';
 import './theme.css'
 
@@ -22,6 +23,7 @@ export default function RootLayout({ children }) {
   return (
       <html lang="en" className={montserrat.variable} suppressHydrationWarning>
       <body>
+        <AnnouncementBar />
         {/* Meta Pixel <noscript> fallback */}
         {process.env.NEXT_PUBLIC_META_PIXEL_ID ? (
           <noscript>
