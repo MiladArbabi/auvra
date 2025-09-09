@@ -4,14 +4,15 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
-import { siteConfig } from '@/config/site';
+import NavDropdown from './NavDropdown';
+import { Search, User, ShoppingBag } from 'lucide-react';
 
-export default function Header() {
+export default function Header({ collections }) {
   const t = useTranslations('nav');
   const locale = useLocale();
   return (
     // Updated: Using brand colors
-    <header className="sticky top-0 z-20 border-b border-secondary/50 bg-background/80 backdrop-blur">
+    <header className="sticky top-0 z-20 bg-subtle">
       <div className="container mx-auto flex h-16 items-center justify-between p-4">
         <Link href="/">
           <Image
@@ -23,21 +24,29 @@ export default function Header() {
           />
         </Link>
         {/* Updated: Using brand colors */}
-        <nav className="hidden md:flex gap-6 text-sm font-medium text-foreground/80">
-          {siteConfig.mainNav.map((item) => (
-            <Link
-              key={item.href}
-              href={`/${locale}${item.href}`}
-              className="hover:text-primary hover:underline"
-            >
-              {t(item.t_key)}
-            </Link>
-          ))}
-        </nav>
-        <div>
-          {/* Placeholder for future icons like cart, search, etc. */}
+        <nav className="hidden lg:flex gap-8 text-sm font-semibold uppercase tracking-wider text-foreground/80">
+          {/* We will make these into mega menus next */}
+          <NavDropdown title="Shop by Category" items={collections} />
+          <Link href="#" className="hover:text-primary">
+            Shop by Concern
+          </Link>
+          <Link href="#" className="hover:text-primary">
+            Best Sellers
+          </Link>
+          </nav>
+          <div className="flex items-center gap-5">
+          <button aria-label="Search" className="hover:text-primary transition-colors">
+            <Search size={22} />
+          </button>
+          {/* Placeholder for Account Icon */}
+          <Link href="#" aria-label="My account" className="hover:text-primary transition-colors">
+            <User size={22} />
+          </Link>
+          <Link href="#" aria-label="Shopping cart" className="hover:text-primary transition-colors">
+            <ShoppingBag size={22} />
+          </Link>
+          </div>
         </div>
-      </div>
-    </header>
-  );
-}
+      </header>
+    );
+  }

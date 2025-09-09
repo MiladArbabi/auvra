@@ -5,6 +5,7 @@
   --font-montserrat: 'Montserrat', sans-serif;
 
   --color-background: 255 255 255; /* #FFFFFF */
+  --color-subtle-background: 241 250 238; /* #f1faee */
   --color-foreground: 29 53 87;   /* #1d3557 */
   --color-primary: 69 123 157;  /* #457b9d */
   --color-secondary: 224 224 224; /* #e0e0e0 */
@@ -19,7 +20,11 @@ body {
   font-family: var(--font-montserrat);
 }
 
-/* You can add simple, reusable color classes here if needed */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
 .text-primary {
   color: rgb(var(--color-primary));
 }
@@ -28,6 +33,9 @@ body {
 }
 .bg-secondary {
   background-color: rgb(var(--color-secondary));
+}
+.bg-subtle {
+  background-color: rgb(var(--color-subtle-background));
 }
 .text-accent {
   color: rgb(var(--color-accent));
@@ -40,6 +48,9 @@ body {
 }
 .text-background {
   color: rgb(var(--color-background));
+}
+.bg-background {
+  background-color: rgb(var(--color-subtle-background));
 }
 
 /*
