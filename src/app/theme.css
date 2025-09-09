@@ -20,7 +20,11 @@ body {
   font-family: var(--font-montserrat);
 }
 
-/* You can add simple, reusable color classes here if needed */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
 .text-primary {
   color: rgb(var(--color-primary));
 }
@@ -44,6 +48,9 @@ body {
 }
 .text-background {
   color: rgb(var(--color-background));
+}
+.bg-background {
+  background-color: rgb(var(--color-subtle-background));
 }
 
 /*
