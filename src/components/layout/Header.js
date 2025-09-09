@@ -4,6 +4,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
+import NavDropdown from './NavDropdown';
 
 export default function Header({ collections }) {
   const t = useTranslations('nav');
@@ -24,9 +25,7 @@ export default function Header({ collections }) {
         {/* Updated: Using brand colors */}
         <nav className="hidden lg:flex gap-8 text-sm font-semibold uppercase tracking-wider text-foreground/80">
           {/* We will make these into mega menus next */}
-          <Link href={`/${locale}/collections/all`} className="hover:text-primary">
-            Shop by Category
-           </Link>
+          <NavDropdown title="Shop by Category" items={collections} />
           <Link href="#" className="hover:text-primary">
             Shop by Concern
           </Link>
