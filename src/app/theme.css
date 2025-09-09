@@ -15,6 +15,7 @@
 /* Apply the base font and colors to the entire site */
 body {
   margin: 0;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
   background-color: rgb(var(--color-background));
   color: rgb(var(--color-foreground));
   font-family: var(--font-montserrat);
