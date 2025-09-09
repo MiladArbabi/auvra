@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import NavDropdown from './NavDropdown';
+import { Search, User, ShoppingBag } from 'lucide-react';
 
 export default function Header({ collections }) {
   const t = useTranslations('nav');
@@ -33,24 +34,16 @@ export default function Header({ collections }) {
             Best Sellers
           </Link>
           </nav>
-          <div className="flex items-center gap-4">
-          {/* Placeholder for Search Icon */}
-          <button aria-label="Search">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-            </svg>
+          <div className="flex items-center gap-5">
+          <button aria-label="Search" className="hover:text-primary transition-colors">
+            <Search size={22} />
           </button>
           {/* Placeholder for Account Icon */}
-          <Link href="#" aria-label="My account">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-            </svg>
+          <Link href="#" aria-label="My account" className="hover:text-primary transition-colors">
+            <User size={22} />
           </Link>
-          {/* Placeholder for Cart Icon */}
-          <Link href="#" aria-label="Shopping cart">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.658-.463 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" />
-            </svg>
+          <Link href="#" aria-label="Shopping cart" className="hover:text-primary transition-colors">
+            <ShoppingBag size={22} />
           </Link>
           </div>
         </div>
