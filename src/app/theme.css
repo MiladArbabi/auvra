@@ -13,6 +13,7 @@
 
 /* Apply the base font and colors to the entire site */
 body {
+  margin: 0;
   background-color: rgb(var(--color-background));
   color: rgb(var(--color-foreground));
   font-family: var(--font-montserrat);
@@ -33,6 +34,12 @@ body {
 }
 .bg-accent {
   background-color: rgb(var(--color-accent));
+}
+.bg-foreground {
+  background-color: rgb(var(--color-foreground));
+}
+.text-background {
+  color: rgb(var(--color-background));
 }
 
 /*

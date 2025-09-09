@@ -12,7 +12,6 @@ const messages = [
 
 export default function AnnouncementBar() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(true);
 
   // This effect will run on the client and cycle through the messages
   useEffect(() => {
@@ -24,12 +23,8 @@ export default function AnnouncementBar() {
     return () => clearInterval(interval);
   }, []);
 
-  if (!isVisible) {
-    return null;
-  }
-
   return (
-    <div className="relative bg-foreground text-background text-center text-sm font-medium p-2">
+    <div className="relative bg-foreground text-background text-center text-sm font-medium py-0.5">
       {/* We use the index as a key to trigger the fade animation on change */}
       <p
         key={currentIndex}
@@ -37,17 +32,6 @@ export default function AnnouncementBar() {
       >
         {messages[currentIndex]}
       </p>
-      
-      <button 
-        onClick={() => setIsVisible(false)}
-        className="absolute top-1/2 right-4 -translate-y-1/2"
-        aria-label="Dismiss announcement"
-      >
-        {/* Simple SVG for the 'X' icon */}
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
     </div>
   );
 }
