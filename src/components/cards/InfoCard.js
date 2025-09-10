@@ -15,11 +15,11 @@ export default function InfoCard({
     // Define styles for different sizes
   const sizeStyles = {
     medium: {
-      aspect: 'aspect-[4/3]',
+      height: 'aspect-[4/3]',
       headline: 'text-3xl',
     },
     hero: {
-      aspect: 'aspect-[16/9] md:aspect-[2/1]', // Different aspect ratios for mobile vs desktop
+      height: 'h-[50vh]', // Set height to 75% of the viewport height
       headline: 'text-4xl md:text-6xl',
     },
   };
@@ -27,8 +27,8 @@ export default function InfoCard({
   const currentStyle = sizeStyles[size] || sizeStyles.medium;
 
   return (
-    <div className={`relative flex w-full items-end overflow-hidden ${borderRadius} p-8 md:p-12 ${backgroundColor} ${currentStyle.aspect}`}>
-      {/* Background Image (renders if provided) */}
+    <div className={`relative flex w-full items-end overflow-hidden ${borderRadius} p-8 md:p-12 ${backgroundColor} ${currentStyle.height}`}>      
+    {/* Background Image (renders if provided) */}
       {backgroundImage && (
         <Image
           src={backgroundImage.url}
