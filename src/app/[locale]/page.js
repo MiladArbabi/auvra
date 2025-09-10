@@ -1,5 +1,5 @@
 // src/app/[locale]/page.js
-import { getCollections } from '@/lib/shopify';
+import { getCollections, getBestSellers } from '@/lib/shopify';
 import HomepageClient from './HomepageClient';
 
 export default async function Home({ params }) {
@@ -9,5 +9,8 @@ export default async function Home({ params }) {
   const allCollections = await getCollections(locale);
   const collections = allCollections.slice(0, 4);
 
-  return <HomepageClient collections={collections} />;
-}
+  // Fetch the 4 best-selling products
+  const bestSellers = await getBestSellers(locale);
+
+  return <HomepageClient collections={collections} bestSellers={bestSellers} />;
+} 
