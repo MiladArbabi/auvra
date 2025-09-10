@@ -1,6 +1,6 @@
 // src/app/layout.js
 import {Suspense} from 'react';
-import { Montserrat } from 'next/font/google';
+import localFont from 'next/font/local';
 import {ConsentProvider} from '@/components/consent/ConsentContext';
 import ConsentBanner from '@/components/consent/ConsentBanner';
 import AnalyticsLoader from '@/components/analytics/AnalyticsLoader';
@@ -8,10 +8,26 @@ import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import './globals.css';
 import './theme.css'
 
-const montserrat = Montserrat({
-  subsets: ['latin'],
+const dongle = localFont({
+  src: [
+    {
+      path: '../assets/Dongle-Light.ttf',
+      weight: '300',
+      style: 'normal',
+    },
+    {
+      path: '../assets/Dongle-Regular.ttf',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../assets/Dongle-Bold.ttf',
+      weight: '700',
+      style: 'normal',
+    },
+  ],
   display: 'swap',
-  variable: '--font-montserrat',
+  variable: '--font-dongle',
 });
 
 export const metadata = {
@@ -21,7 +37,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-      <html lang="en" className={montserrat.variable} suppressHydrationWarning>
+    <html lang="en" className={dongle.variable} suppressHydrationWarning>
       <body>
         <AnnouncementBar />
         {/* Meta Pixel <noscript> fallback */}

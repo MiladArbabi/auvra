@@ -7,6 +7,9 @@ const config = {
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-dongle)', ...defaultTheme.fontFamily.sans],
+      },
     },
   },
   plugins: [aspectRatio],
