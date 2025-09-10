@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import NavDropdown from './NavDropdown';
+import MobileMenu from './MobileMenu';
 import { Search, User, ShoppingBag } from 'lucide-react';
 
 export default function Header({ collections }) {
@@ -34,7 +35,8 @@ export default function Header({ collections }) {
             Best Sellers
           </Link>
           </nav>
-          <div className="flex items-center gap-5">
+          {/* Desktop Utility Icons */}
+        <div className="hidden lg:flex items-center gap-5">
           <button aria-label="Search" className="hover:text-primary transition-colors">
             <Search size={22} />
           </button>
@@ -46,6 +48,8 @@ export default function Header({ collections }) {
             <ShoppingBag size={22} />
           </Link>
           </div>
+          {/* Mobile Menu Component */}
+         <MobileMenu collections={collections} />
         </div>
       </header>
     );
