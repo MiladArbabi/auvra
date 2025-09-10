@@ -1,28 +1,13 @@
 // src/app/[locale]/page.js
-'use client';
+import { getCollections } from '@/lib/shopify';
+import HomepageClient from './HomepageClient';
 
-import { useLocale } from 'next-intl';
-import InfoCard from '@/components/cards/InfoCard';
+export default async function Home({ params }) {
+  const { locale } = await params;
 
-export default function Home() {
-  const locale = useLocale() || 'en';
+  // Fetch the first 4 collections to display on the homepage
+  const allCollections = await getCollections(locale);
+  const collections = allCollections.slice(0, 4);
 
-  // Mock data for our new InfoCard component
-  const heroCard = {
-    headline: 'Mindful Beauty',
-    text: 'Discover our new collection of curated essentials for a conscious lifestyle.',
-    backgroundImage: {
-      url: '/mock_product_pictures/Gemini_Generated_Image_4gmokf4gmokf4gmo.png',
-      alt: 'Calm and serene beauty products'
-    },
-    cta: { href: `/${locale}/collections/all`, text: 'Shop Now' },
-  };
-
-  return (
-    <main className="min-h-screen">
-      {/* The Hero card is now full-width, outside of any container */}
-      <InfoCard {...heroCard} size="hero" borderRadius="rounded-none" />
-      
-    </main>
-  );
+  return <HomepageClient collections={collections} />;
 }
