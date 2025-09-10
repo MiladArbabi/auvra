@@ -1,5 +1,5 @@
 // src/app/[locale]/page.js
-import { getCollections, getBestSellers } from '@/lib/shopify';
+import { getCollections, getBestSellers, getMenu } from '@/lib/shopify';
 import HomepageClient from './HomepageClient';
 
 export default async function Home({ params }) {
@@ -12,5 +12,14 @@ export default async function Home({ params }) {
   // Fetch the 4 best-selling products
   const bestSellers = await getBestSellers(locale);
 
-  return <HomepageClient collections={collections} bestSellers={bestSellers} />;
+  // Fetch collections from our new menu
+  const concernCollections = await getMenu('homepage-concerns', locale);
+
+  return (
+    <HomepageClient
+      collections={collections}
+      bestSellers={bestSellers}
+      concernCollections={concernCollections}
+    />
+  );
 } 
