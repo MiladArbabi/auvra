@@ -6,8 +6,10 @@
 import { useLocale } from 'next-intl';
 import InfoCard from '@/components/cards/InfoCard';
 import CategoryCard from '@/components/cards/CategoryCard';
+import ProductCard from '@/components/product/ProductCard';
+import Button from '@/components/ui/Button';
 
-export default function HomepageClient({ collections }) {
+export default function HomepageClient({ collections, bestSellers }) {
   const locale = useLocale() || 'en';
 
   const heroCard = {
@@ -37,7 +39,24 @@ export default function HomepageClient({ collections }) {
         </div>
       </div>
 
-      {/* The new homepage sections for Best Sellers etc. will be added below here */}
+      {/* Best Sellers Section */}
+      <div className="bg-subtle">
+        <div className="container mx-auto px-8 py-16">
+          <h2 className="text-center text-3xl font-bold tracking-tight">
+            Best Sellers
+          </h2>
+          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {bestSellers.map((product) => (
+              <ProductCard key={product.handle} product={product} locale={locale} />
+            ))}
+          </div>
+          <div className="mt-12 text-center">
+            <Button href={`/${locale}/collections/all`} variant="primary">
+              Shop All Products
+            </Button>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }

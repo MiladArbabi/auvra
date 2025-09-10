@@ -76,3 +76,26 @@ export async function getCollections(locale) {
   const data = await sf(collectionsQuery, { language });
   return data?.collections?.edges?.map(e => e.node) || [];
 }
+
+const bestSellersQuery = /* GraphQL */ `
+  query BestSellers($country: CountryCode, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
+    products(first: 4, sortKey: BEST_SELLING) {
+      edges {
+        node {
+          handle
+          title
+          featuredImage { url altText width height }
+          priceRange { minVariantPrice { amount currencyCode } }
+          externalUrl: metafield(namespace: "custom", key: "external_url") { value }
+        }
+      }
+    }
+  }
+`;
+
+export async function getBestSellers(locale) {
+  const language = localeToLanguage(locale);
+  const data = await sf(bestSellersQuery, { language });
+  return data?.products?.edges?.map((e) => e.node) || [];
+}
