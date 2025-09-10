@@ -99,3 +99,31 @@ export async function getBestSellers(locale) {
   const data = await sf(bestSellersQuery, { language });
   return data?.products?.edges?.map((e) => e.node) || [];
 }
+
+const menuQuery = /* GraphQL */ `
+  query Menu($handle: String!, $language: LanguageCode)
+  @inContext(language: $language) {
+    menu(handle: $handle) {
+      items {
+        title
+        resource: resource {
+          ... on Collection {
+            handle
+            image { url altText }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export async function getMenu(handle, locale) {
+  const language = localeToLanguage(locale);
+  const data = await sf(menuQuery, { handle, language });
+  // Transform the data to match the structure our CategoryCard expects
+  return data?.menu?.items?.map(item => ({
+    title: item.title,
+    handle: item.resource?.handle,
+    image: item.resource?.image,
+  })) || [];
+}

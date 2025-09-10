@@ -9,7 +9,7 @@ import CategoryCard from '@/components/cards/CategoryCard';
 import ProductCard from '@/components/product/ProductCard';
 import Button from '@/components/ui/Button';
 
-export default function HomepageClient({ collections, bestSellers }) {
+export default function HomepageClient({ collections, bestSellers, concernCollections }) {
   const locale = useLocale() || 'en';
 
   const heroCard = {
@@ -55,6 +55,18 @@ export default function HomepageClient({ collections, bestSellers }) {
               Shop All Products
             </Button>
           </div>
+        </div>
+      </div>
+
+      {/* Shop by Concern Section */}
+      <div className="container mx-auto px-8 py-16">
+        <h2 className="text-center text-3xl font-bold tracking-tight">
+          Shop by Concern
+        </h2>
+        <div className="mt-8 grid grid-cols-2 gap-6 md:grid-cols-4">
+          {concernCollections.map((collection) => (
+            <CategoryCard key={collection.handle} collection={collection} />
+          ))}
         </div>
       </div>
     </main>
