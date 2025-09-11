@@ -1,6 +1,6 @@
 // src/app/layout.js
 import {Suspense} from 'react';
-import localFont from 'next/font/local';
+import { Figtree } from 'next/font/google';
 import {ConsentProvider} from '@/components/consent/ConsentContext';
 import ConsentBanner from '@/components/consent/ConsentBanner';
 import AnalyticsLoader from '@/components/analytics/AnalyticsLoader';
@@ -8,26 +8,10 @@ import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import './globals.css';
 import './theme.css'
 
-const dongle = localFont({
-  src: [
-    {
-      path: '../assets/Dongle-Light.ttf',
-      weight: '300',
-      style: 'normal',
-    },
-    {
-      path: '../assets/Dongle-Regular.ttf',
-      weight: '400',
-      style: 'normal',
-    },
-    {
-      path: '../assets/Dongle-Bold.ttf',
-      weight: '700',
-      style: 'normal',
-    },
-  ],
+const figtree = Figtree({
+  subsets: ['latin'],
   display: 'swap',
-  variable: '--font-dongle',
+  variable: '--font-figtree',
 });
 
 export const metadata = {
@@ -37,7 +21,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={dongle.variable} suppressHydrationWarning>
+    <html lang="en" className={figtree.variable} suppressHydrationWarning>
       <body>
         <AnnouncementBar />
         {/* Meta Pixel <noscript> fallback */}

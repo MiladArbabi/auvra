@@ -8,7 +8,7 @@ const config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-dongle)', ...defaultTheme.fontFamily.sans],
+        sans: ['var(--font-figtree)', ...defaultTheme.fontFamily.sans],
       },
     },
   },
