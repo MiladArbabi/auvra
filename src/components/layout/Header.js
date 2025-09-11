@@ -25,7 +25,7 @@ export default function Header({ collections }) {
           />
         </Link>
         {/* Updated: Using brand colors */}
-        <nav className="hidden lg:flex gap-8 text-sm font-semibold uppercase tracking-wider text-foreground/80">
+        <nav className="hidden lg:flex gap-8 text-sm font-semibold capitalize tracking-wider text-foreground/80">
         <nav className="hidden lg:flex gap-8 text-sm font-normal uppercase tracking-wider text-foreground/80"></nav>
           {/* We will make these into mega menus next */}
           <NavDropdown title="Shop by Category" items={collections} />

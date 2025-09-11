@@ -26,7 +26,7 @@ export default function CategoryCard({ collection }) {
       
       {/* Title Container */}
       <div className="border-t auvra-border bg-background p-4">
-        <h3 className="text-center font-semibold uppercase tracking-wider text-foreground">
+        <h3 className="text-center font-semibold capitalize tracking-wider text-foreground">
           {title}
         </h3>
       </div>
