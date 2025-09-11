@@ -43,7 +43,7 @@ export default function InfoCard({
 
       {/* Content */}
       <div className="relative z-10 w-full text-background">
-        <h2 className={`${currentStyle.headline} font-extrabold uppercase tracking-wider`}>
+        <h2 className={`${currentStyle.headline} font-extrabold capitalize tracking-wider`}>
           {headline}
         </h2>
         {text && <p className="mt-2 max-w-sm">{text}</p>}
