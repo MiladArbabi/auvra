@@ -1,69 +1,91 @@
+// src/components/CollectionFilters.js
 'use client';
 
-import {Suspense} from 'react';
-import {useRouter, useSearchParams} from 'next/navigation';
+import { Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Button from '@/components/ui/Button';
 
-function Inner() {
+function Inner({ availableFilters }) {
   const router = useRouter();
-  const sp = useSearchParams();
-
-  const q    = sp.get('q')    || '';
-  const min  = sp.get('min')  || '';
-  const max  = sp.get('max')  || '';
-  const sort = sp.get('sort') || 'relevance';
+  const searchParams = useSearchParams();
 
   function onSubmit(e) {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
-    const query = new URLSearchParams();
-    for (const [k, v] of data.entries()) {
-      if (String(v).trim()) query.set(k, String(v).trim());
+    const newSearchParams = new URLSearchParams();
+
+    for (const [key, value] of data.entries()) {
+      if (String(value).trim()) {
+        newSearchParams.set(key, String(value).trim());
+      }
     }
-    router.push(`?${query.toString()}`);
+    // We use router.replace to avoid adding to the browser's history stack
+    router.replace(`?${newSearchParams.toString()}`);
   }
 
   function reset() {
-    router.push('?');
+    router.replace('?');
   }
 
   return (
-    <form onSubmit={onSubmit} className="my-6 flex flex-wrap gap-3 items-end">
-      <label className="flex flex-col text-sm">
-        <span>Search</span>
-        <input name="q" defaultValue={q} className="border rounded-lg px-3 py-2" />
-      </label>
+    <form onSubmit={onSubmit} className="my-6 space-y-6">
+      <div className="flex flex-wrap items-end gap-4">
+        {/* --- Sort Dropdown --- */}
+        <label className="flex flex-col text-sm font-medium">
+          <span>Sort by</span>
+          <select name="sort" defaultValue={searchParams.get('sort') || 'relevance'} className="mt-1 rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary">
+            <option value="relevance">Relevance</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="created-desc">Newest</option>
+          </select>
+        </label>
+        {/* You can add manual filters like search or price range here if needed */}
+      </div>
 
-      <label className="flex flex-col text-sm">
-        <span>Min</span>
-        <input name="min" type="number" defaultValue={min} className="border rounded-lg px-3 py-2 w-28" />
-      </label>
+      {/* --- Dynamic Faceted Filters --- */}
+      <div className="space-y-4">
+        {availableFilters.map((filter) => {
+          if (filter.type !== 'LIST') return null; // Only handle list-type filters for now
 
-      <label className="flex flex-col text-sm">
-        <span>Max</span>
-        <input name="max" type="number" defaultValue={max} className="border rounded-lg px-3 py-2 w-28" />
-      </label>
+          return (
+            <div key={filter.id}>
+              <h3 className="font-semibold">{filter.label}</h3>
+              <ul className="mt-2 space-y-1">
+                {filter.values.map((value) => (
+                  <li key={value.id} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name={filter.id}
+                      id={value.id}
+                      value={value.input.toString().split(':')[1].replace(/"/g, '') === 'true' ? 'true' : undefined}
+                      defaultChecked={searchParams.has(filter.id)}
+                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    />
+                    <label htmlFor={value.id} className="ml-3 text-sm">
+                      {value.label} ({value.count})
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })}
+      </div>
 
-      <label className="flex flex-col text-sm">
-        <span>Sort</span>
-        <select name="sort" defaultValue={sort} className="border rounded-lg px-3 py-2">
-          <option value="relevance">Relevance</option>
-          <option value="price-asc">Price ↑</option>
-          <option value="price-desc">Price ↓</option>
-          <option value="created-desc">Newest</option>
-          <option value="best-selling">Best selling</option>
-        </select>
-      </label>
-
-      <button className="px-4 py-2 rounded-xl bg-black text-white">Apply</button>
-      <button type="button" onClick={reset} className="px-4 py-2 rounded-xl border">Reset</button>
+      <div className="flex gap-4">
+        <Button type="submit" variant="primary">Apply</Button>
+        <Button type="button" onClick={reset} variant="secondary">Reset</Button>
+      </div>
     </form>
   );
 }
 
-export default function CollectionFilters() {
+export default function CollectionFilters({ availableFilters }) {
   return (
-    <Suspense fallback={null}>
-      <Inner />
+    // Suspense boundary is crucial for components that use useSearchParams
+    <Suspense fallback={<div className="h-24" />}>
+      <Inner availableFilters={availableFilters} />
     </Suspense>
   );
 }
