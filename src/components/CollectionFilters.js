@@ -56,10 +56,10 @@ function Inner({ availableFilters }) {
                   <li key={value.id} className="flex items-center">
                     <input
                       type="checkbox"
-                      name={filter.id}
+                      name={value.input.toString().includes('available') ? 'available' : filter.id} // Simplify the name for 'available'
                       id={value.id}
-                      value={value.input.toString().split(':')[1].replace(/"/g, '') === 'true' ? 'true' : undefined}
-                      defaultChecked={searchParams.has(filter.id)}
+                      value="true"
+                      defaultChecked={searchParams.get(value.input.toString().includes('available') ? 'available' : filter.id) === 'true'}
                       className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                     />
                     <label htmlFor={value.id} className="ml-3 text-sm">
