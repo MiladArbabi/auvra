@@ -2,6 +2,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getCustomer } from '@/lib/shopify';
+import OrderHistory from '../OrderHistory';
 
 export default async function DashboardPage({ params }) {
   const { locale } = await params;
@@ -31,13 +32,7 @@ export default async function DashboardPage({ params }) {
 
         <div className="mt-8">
           <h2 className="text-2xl font-semibold">Order History</h2>
-          {/* TODO: Display the list of orders */}
-          <div className="mt-4 rounded-lg border auvra-border p-8 text-center">
-            <p className="text-foreground/60">Your order history will appear here.</p>
-            <p className="text-xs text-foreground/50">
-              (Order history UI coming soon)
-            </p>
-          </div>
+          <OrderHistory orders={customer.orders.edges.map(e => e.node)} />
         </div>
       </div>
     </main>
