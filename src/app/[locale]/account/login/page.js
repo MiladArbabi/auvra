@@ -2,11 +2,15 @@
 'use client';
 
 import { useState } from 'react';
-import { login } from '@/lib/shopify';
+import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
+import { login } from '@/app/actions/account';
 import Button from '@/components/ui/Button';
 
 export default function LoginPage() {
   const [error, setError] = useState(null);
+  const router = useRouter();
+  const locale = useLocale();
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -29,9 +33,7 @@ export default function LoginPage() {
     }
 
     if (result.customerAccessToken) {
-      console.log('Login successful!', result.customerAccessToken);
-      alert('Login successful! Check the console for your access token.');
-      // TODO: Save the token and redirect the user
+      router.push(`/${locale}/account/dashboard`);
     }
   }
 
