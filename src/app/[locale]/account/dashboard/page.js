@@ -6,7 +6,7 @@ import OrderHistory from '../OrderHistory';
 
 export default async function DashboardPage({ params }) {
   const { locale } = await params;
-  const cookieJar = cookies();
+  const cookieJar = await cookies();
   const accessToken = cookieJar.get('customerAccessToken')?.value;
 
   // 1. Check for the session token. If it doesn't exist, redirect to login.
