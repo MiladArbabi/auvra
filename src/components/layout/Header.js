@@ -6,11 +6,15 @@ import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import NavDropdown from './NavDropdown';
 import MobileMenu from './MobileMenu';
+import { useCart } from '@/context/CartContext';
 import { Search, User, ShoppingBag } from 'lucide-react';
 
 export default function Header({ collections }) {
   const t = useTranslations('nav');
   const locale = useLocale();
+  const { setIsOpen, cart } = useCart();
+  const quantity = cart?.totalQuantity || 0;
+
   return (
     // Updated: Using brand colors
     <header className="sticky top-0 z-20 bg-subtle">
@@ -45,9 +49,15 @@ export default function Header({ collections }) {
           <Link href="#" aria-label="My account" className="hover:text-primary transition-colors">
             <User size={22} />
           </Link>
-          <Link href="#" aria-label="Shopping cart" className="hover:text-primary transition-colors">
+          {/* Placeholder for Cart Icon */}
+          <button onClick={() => setIsOpen(true)} aria-label="Open cart" className="relative hover:text-primary transition-colors">
             <ShoppingBag size={22} />
-          </Link>
+            {quantity > 0 && (
+              <div className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs text-white">
+                {quantity}
+              </div>
+            )}
+          </button>
           </div>
           {/* Mobile Menu Component */}
          <MobileMenu collections={collections} />

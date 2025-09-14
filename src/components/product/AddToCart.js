@@ -3,11 +3,24 @@
 
 import Button from '@/components/ui/Button';
 import BeginCheckout from '@/components/BeginCheckout';
+import { useCart } from '@/context/CartContext';
 
 export default function AddToCart({ selectedVariant }) {
+  const { addToCart } = useCart();
+
+  async function handleAddToCart(e) {
+    e.preventDefault();
+    if (!selectedVariant) return;
+
+    const formData = new FormData(e.currentTarget);
+    const quantity = parseInt(formData.get('quantity'), 10);
+
+    await addToCart(selectedVariant.id, quantity);
+  }
+
   return (
     <>
-      <form id="buy" className="mt-6 flex items-center gap-4">
+      <form id="buy" onSubmit={handleAddToCart} className="mt-6 flex items-center gap-4">
         <input type="hidden" name="variantId" value={selectedVariant?.id || ''} />
         <input
           name="quantity"

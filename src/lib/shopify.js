@@ -127,3 +127,124 @@ export async function getMenu(handle, locale) {
     image: item.resource?.image,
   })) || [];
 }
+
+const cartFragment = /* GraphQL */ `
+  fragment CartFields on Cart {
+    id
+    checkoutUrl
+    totalQuantity
+    cost {
+      subtotalAmount {
+        amount
+        currencyCode
+      }
+    }
+    lines(first: 10) {
+      edges {
+        node {
+          id
+          quantity
+          merchandise {
+            ... on ProductVariant {
+              id
+              title
+              image {
+                url
+                altText
+              }
+              product {
+                title
+                handle
+              }
+              price {
+                amount
+                currencyCode
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+const createCartMutation = /* GraphQL */ `
+  mutation ($lines: [CartLineInput!]) {
+    cartCreate(input: { lines: $lines }) {
+      cart {
+        ...CartFields
+      }
+    }
+  }
+  ${cartFragment}
+`;
+
+const addToCartMutation = /* GraphQL */ `
+  mutation ($cartId: ID!, $lines: [CartLineInput!]) {
+    cartLinesAdd(cartId: $cartId, lines: $lines) {
+      cart {
+        ...CartFields
+      }
+    }
+  }
+  ${cartFragment}
+`;
+
+const getCartQuery = /* GraphQL */ `
+  query ($cartId: ID!) {
+    cart(id: $cartId) {
+      ...CartFields
+    }
+  }
+  ${cartFragment}
+`;
+
+export async function createCart(variantId, quantity) {
+  const lines = [{ merchandiseId: variantId, quantity }];
+  const data = await sf(createCartMutation, { lines });
+  return data?.cartCreate?.cart;
+}
+
+export async function addToCartLines(cartId, variantId, quantity) {
+  const lines = [{ merchandiseId: variantId, quantity }];
+  const data = await sf(addToCartMutation, { cartId, lines });
+  return data?.cartLinesAdd?.cart;
+}
+
+export async function getCart(cartId) {
+  const data = await sf(getCartQuery, { cartId });
+  return data?.cart;
+}
+
+const removeFromCartMutation = /* GraphQL */ `
+  mutation ($cartId: ID!, $lineIds: [ID!]!) {
+    cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+      cart {
+        ...CartFields
+      }
+    }
+  }
+  ${cartFragment}
+`;
+
+const updateCartMutation = /* GraphQL */ `
+  mutation ($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+    cartLinesUpdate(cartId: $cartId, lines: $lines) {
+      cart {
+        ...CartFields
+      }
+    }
+  }
+  ${cartFragment}
+`;
+
+export async function removeFromCartLine(cartId, lineId) {
+  const data = await sf(removeFromCartMutation, { cartId, lineIds: [lineId] });
+  return data?.cartLinesRemove?.cart;
+}
+
+export async function updateCartLine(cartId, lineId, quantity) {
+  const lines = [{ id: lineId, quantity }];
+  const data = await sf(updateCartMutation, { cartId, lines });
+  return data?.cartLinesUpdate?.cart;
+}

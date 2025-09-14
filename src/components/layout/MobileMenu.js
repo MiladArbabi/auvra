@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
+import { useCart } from '@/context/CartContext';
 import { User, ShoppingBag, X, ChevronDown } from 'lucide-react';
 
 // A simple, self-contained accordion for the mobile menu
@@ -47,6 +48,8 @@ function MobileAccordion({ title, items, locale, closeMenu }) {
 export default function MobileMenu({ collections }) {
   const [isOpen, setIsOpen] = useState(false);
   const locale = useLocale();
+  const { cart } = useCart();
+  const quantity = cart?.totalQuantity || 0;
   const closeMenu = () => setIsOpen(false);
 
   useEffect(() => {
@@ -104,9 +107,15 @@ export default function MobileMenu({ collections }) {
             <Link href="#" aria-label="My account" className="hover:text-primary transition-colors p-2" onClick={closeMenu}>
               <User size={22} />
             </Link>
-            <Link href="#" aria-label="Shopping cart" className="hover:text-primary transition-colors p-2" onClick={closeMenu}>
+            {/* Note: This button does not close the menu, it just opens the drawer */}
+            <button aria-label="Open cart" className="relative hover:text-primary transition-colors p-2">
               <ShoppingBag size={22} />
-            </Link>
+              {quantity > 0 && (
+                <div className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs text-white">
+                  {quantity}
+                </div>
+              )}
+            </button>
           </div>
         </div>
       </div>

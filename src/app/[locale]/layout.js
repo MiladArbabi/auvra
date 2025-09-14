@@ -6,6 +6,8 @@ import en from '@/messages/en.json';
 import sv from '@/messages/sv.json';
 import { getCollections } from '@/lib/shopify';
 import { localeToLanguage } from '@/lib/market-utils';
+import { CartProvider } from '@/context/CartContext';
+import CartDrawer from '@/components/cart/CartDrawer';
 
 export default async function LocaleLayout({children, params}) {
   const {locale} = await params; // params is a Promise in Next 15
@@ -14,13 +16,16 @@ export default async function LocaleLayout({children, params}) {
 
   return (
    <Providers locale={locale} messages={messages}>
-     <div className="min-h-screen flex flex-col">
-        <Header collections={collections} />
-        <main className='flex-grow'>
-          {children}
-        </main>
-        <Footer />
-     </div>
+     <CartProvider>
+       <div className="min-h-screen flex flex-col">
+          <Header collections={collections} />
+          <main className='flex-grow'>
+            {children}
+          </main>
+          <Footer />
+       </div>
+       <CartDrawer />
+     </CartProvider>
    </Providers>
  );
 }

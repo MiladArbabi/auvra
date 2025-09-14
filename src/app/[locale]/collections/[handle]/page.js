@@ -84,6 +84,7 @@ export default async function CollectionPage({ params, searchParams }) {
   const col = data?.collection;
   const items = col?.products?.edges?.map(e => e.node) || [];
   const availableFilters = col?.products?.filters || [];
+  console.log('Available Filters from Shopify:', JSON.stringify(availableFilters, null, 2));
   const UTM_SOURCE = process.env.NEXT_PUBLIC_UTM_SOURCE || 'auvra';
   function withUtm(u, { campaign, term }) {
     try {
