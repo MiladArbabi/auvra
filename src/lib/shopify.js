@@ -248,3 +248,26 @@ export async function updateCartLine(cartId, lineId, quantity) {
   const data = await sf(updateCartMutation, { cartId, lines });
   return data?.cartLinesUpdate?.cart;
 }
+
+const customerAccessTokenCreateMutation = /* GraphQL */ `
+  mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
+    customerAccessTokenCreate(input: $input) {
+      customerUserErrors {
+        code
+        field
+        message
+      }
+      customerAccessToken {
+        accessToken
+        expiresAt
+      }
+    }
+  }
+`;
+
+export async function login(email, password) {
+  const data = await sf(customerAccessTokenCreateMutation, {
+    input: { email, password },
+  });
+  return data?.customerAccessTokenCreate;
+}
