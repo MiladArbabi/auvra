@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { createCart, addToCartLines, getCart } from '@/lib/shopify';
+import { createCart, addToCartLines, getCart, removeFromCartLine, updateCartLine } from '@/lib/shopify';
 
 const CartContext = createContext();
 
@@ -43,8 +43,22 @@ export function CartProvider({ children }) {
   };
 
   // TODO: Implement removeFromCart and updateQuantity
-  const removeFromCart = (lineId) => console.log('TODO: Remove from cart', { lineId });
-  const updateQuantity = (lineId, newQuantity) => console.log('TODO: Update quantity', { lineId, newQuantity });
+ const removeFromCart = async (lineId) => {
+    if (!cart) return;
+    const newCart = await removeFromCartLine(cart.id, lineId);
+    setCart(newCart);
+  };
+
+  const updateQuantity = async (lineId, newQuantity) => {
+    if (!cart) return;
+    // Shopify doesn't allow a quantity of 0, so we remove the line instead.
+    if (newQuantity === 0) {
+      return await removeFromCart(lineId);
+    }
+    const newCart = await updateCartLine(cart.id, lineId, newQuantity);
+    setCart(newCart);
+  };
+
 
   const value = {
     cart,

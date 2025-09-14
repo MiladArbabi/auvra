@@ -215,3 +215,36 @@ export async function getCart(cartId) {
   const data = await sf(getCartQuery, { cartId });
   return data?.cart;
 }
+
+const removeFromCartMutation = /* GraphQL */ `
+  mutation ($cartId: ID!, $lineIds: [ID!]!) {
+    cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+      cart {
+        ...CartFields
+      }
+    }
+  }
+  ${cartFragment}
+`;
+
+const updateCartMutation = /* GraphQL */ `
+  mutation ($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+    cartLinesUpdate(cartId: $cartId, lines: $lines) {
+      cart {
+        ...CartFields
+      }
+    }
+  }
+  ${cartFragment}
+`;
+
+export async function removeFromCartLine(cartId, lineId) {
+  const data = await sf(removeFromCartMutation, { cartId, lineIds: [lineId] });
+  return data?.cartLinesRemove?.cart;
+}
+
+export async function updateCartLine(cartId, lineId, quantity) {
+  const lines = [{ id: lineId, quantity }];
+  const data = await sf(updateCartMutation, { cartId, lines });
+  return data?.cartLinesUpdate?.cart;
+}
