@@ -5,8 +5,10 @@ import { useState } from 'react';
 import Image from 'next/image';
 
 export default function ProductGallery({ images, title, featuredImage }) {
-  const [selectedImage, setSelectedImage] = useState(featuredImage);
-  const thumbnailImages = [featuredImage, ...images.filter(img => img.url !== featuredImage.url)];
+  const [selectedImage, setSelectedImage] = useState(featuredImage || {});
+  const thumbnailImages = [featuredImage, ...images].filter(
+    (img, index, self) => img?.url && index === self.findIndex(t => t?.url === img?.url)
+  );
 
   return (
     <div>
@@ -32,7 +34,7 @@ export default function ProductGallery({ images, title, featuredImage }) {
             <button
               onClick={() => setSelectedImage(image)}
               className={`h-full w-full rounded-lg transition hover:ring-2 hover:ring-primary/50 focus:outline-none focus:ring-2 focus:ring-primary ring-1 ${
-                selectedImage.url === image.url ? 'ring-2 ring-primary' : 'auvra-ring-secondary'
+                selectedImage?.url === image.url ? 'ring-2 ring-primary' : 'auvra-ring-secondary'
               }`}
             >
               <Image
