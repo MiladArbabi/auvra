@@ -1,6 +1,7 @@
 // src/app/actions/account.js
 "use server";
 
+import { cookies } from 'next/headers';
 import { sf } from '@/lib/shopify';
 
 const customerCreateMutation = /* GraphQL */ `
@@ -25,4 +26,40 @@ export async function register(email, password) {
     input: { email, password },
   });
   return data?.customerCreate;
+}
+
+const customerAccessTokenCreateMutation = /* GraphQL */ `
+  mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
+    customerAccessTokenCreate(input: $input) {
+      customerUserErrors {
+        code
+        field
+        message
+      }
+      customerAccessToken {
+        accessToken
+        expiresAt
+      }
+    }
+  }
+`;
+
+export async function login(email, password) {
+  const data = await sf(customerAccessTokenCreateMutation, {
+    input: { email, password },
+  });
+
+  const token = data?.customerAccessTokenCreate?.customerAccessToken;
+
+  if (token?.accessToken) {
+    cookies().set({
+      name: 'customerAccessToken',
+      value: token.accessToken,
+      httpOnly: true,
+      path: '/',
+      expires: new Date(token.expiresAt),
+    });
+  }
+
+  return data?.customerAccessTokenCreate;
 }

@@ -249,25 +249,32 @@ export async function updateCartLine(cartId, lineId, quantity) {
   return data?.cartLinesUpdate?.cart;
 }
 
-const customerAccessTokenCreateMutation = /* GraphQL */ `
-  mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
-    customerAccessTokenCreate(input: $input) {
-      customerUserErrors {
-        code
-        field
-        message
-      }
-      customerAccessToken {
-        accessToken
-        expiresAt
+const getCustomerQuery = /* GraphQL */ `
+  query getCustomer($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) {
+      firstName
+      lastName
+      email
+      phone
+      orders(first: 10) {
+        edges {
+          node {
+            orderNumber
+            processedAt
+            financialStatus
+            fulfillmentStatus
+            totalPrice {
+              amount
+              currencyCode
+            }
+          }
+        }
       }
     }
   }
 `;
 
-export async function login(email, password) {
-  const data = await sf(customerAccessTokenCreateMutation, {
-    input: { email, password },
-  });
-  return data?.customerAccessTokenCreate;
+export async function getCustomer(customerAccessToken) {
+  const data = await sf(getCustomerQuery, { customerAccessToken });
+  return data?.customer;
 }
