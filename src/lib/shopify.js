@@ -127,3 +127,91 @@ export async function getMenu(handle, locale) {
     image: item.resource?.image,
   })) || [];
 }
+
+const cartFragment = /* GraphQL */ `
+  fragment CartFields on Cart {
+    id
+    checkoutUrl
+    totalQuantity
+    cost {
+      subtotalAmount {
+        amount
+        currencyCode
+      }
+    }
+    lines(first: 10) {
+      edges {
+        node {
+          id
+          quantity
+          merchandise {
+            ... on ProductVariant {
+              id
+              title
+              image {
+                url
+                altText
+              }
+              product {
+                title
+                handle
+              }
+              price {
+                amount
+                currencyCode
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+const createCartMutation = /* GraphQL */ `
+  mutation ($lines: [CartLineInput!]) {
+    cartCreate(input: { lines: $lines }) {
+      cart {
+        ...CartFields
+      }
+    }
+  }
+  ${cartFragment}
+`;
+
+const addToCartMutation = /* GraphQL */ `
+  mutation ($cartId: ID!, $lines: [CartLineInput!]) {
+    cartLinesAdd(cartId: $cartId, lines: $lines) {
+      cart {
+        ...CartFields
+      }
+    }
+  }
+  ${cartFragment}
+`;
+
+const getCartQuery = /* GraphQL */ `
+  query ($cartId: ID!) {
+    cart(id: $cartId) {
+      ...CartFields
+    }
+  }
+  ${cartFragment}
+`;
+
+export async function createCart(variantId, quantity) {
+  const lines = [{ merchandiseId: variantId, quantity }];
+  const data = await sf(createCartMutation, { lines });
+  return data?.cartCreate?.cart;
+}
+
+export async function addToCartLines(cartId, variantId, quantity) {
+  const lines = [{ merchandiseId: variantId, quantity }];
+  const data = await sf(addToCartMutation, { cartId, lines });
+  return data?.cartLinesAdd?.cart;
+}
+
+export async function getCart(cartId) {
+  const data = await sf(getCartQuery, { cartId });
+  return data?.cart;
+}

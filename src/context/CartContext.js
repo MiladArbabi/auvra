@@ -1,29 +1,50 @@
 // src/context/CartContext.js
 'use client';
 
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { createCart, addToCartLines, getCart } from '@/lib/shopify';
 
-// 1. Create the context
 const CartContext = createContext();
 
-// 2. Create the Provider component
 export function CartProvider({ children }) {
-  const [cart, setCart] = useState(null); // Will hold the cart object from Shopify
-  const [isOpen, setIsOpen] = useState(false); // Controls the cart drawer's visibility
+  const [cart, setCart] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
 
-  // TODO: Implement these functions to call the Shopify Storefront API
-  const addToCart = (variantId, quantity) => {
-    console.log('TODO: Add to cart', { variantId, quantity });
+  // On initial load, try to retrieve a cart from local storage
+  useEffect(() => {
+    const cartId = localStorage.getItem('cartId');
+    if (cartId) {
+      getCart(cartId).then(retrievedCart => {
+        // Verify the cart still exists in Shopify
+        if (retrievedCart) {
+          setCart(retrievedCart);
+        } else {
+          localStorage.removeItem('cartId');
+        }
+      });
+    }
+  }, []);
+
+  const addToCart = async (variantId, quantity) => {
+    let newCart;
+    if (cart) {
+      // If a cart already exists, add a new line to it
+      newCart = await addToCartLines(cart.id, variantId, quantity);
+    } else {
+      // If no cart exists, create a new one
+      newCart = await createCart(variantId, quantity);
+    }
+    
+    // Update state and local storage
+    setCart(newCart);
+    localStorage.setItem('cartId', newCart.id);
     setIsOpen(true);
+    console.log('Cart updated:', newCart); // For debugging
   };
 
-  const removeFromCart = (lineId) => {
-    console.log('TODO: Remove from cart', { lineId });
-  };
-
-  const updateQuantity = (lineId, newQuantity) => {
-    console.log('TODO: Update quantity', { lineId, newQuantity });
-  };
+  // TODO: Implement removeFromCart and updateQuantity
+  const removeFromCart = (lineId) => console.log('TODO: Remove from cart', { lineId });
+  const updateQuantity = (lineId, newQuantity) => console.log('TODO: Update quantity', { lineId, newQuantity });
 
   const value = {
     cart,
@@ -37,7 +58,6 @@ export function CartProvider({ children }) {
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
-// 3. Create a custom hook for easy access
 export function useCart() {
   const context = useContext(CartContext);
   if (!context) {

@@ -12,7 +12,8 @@ import { Search, User, ShoppingBag } from 'lucide-react';
 export default function Header({ collections }) {
   const t = useTranslations('nav');
   const locale = useLocale();
-  const { setIsOpen } = useCart();
+  const { setIsOpen, cart } = useCart();
+  const quantity = cart?.totalQuantity || 0;
 
   return (
     // Updated: Using brand colors
@@ -49,8 +50,13 @@ export default function Header({ collections }) {
             <User size={22} />
           </Link>
           {/* Placeholder for Cart Icon */}
-          <button onClick={() => setIsOpen(true)} aria-label="Open cart" className="hover:text-primary transition-colors">
+          <button onClick={() => setIsOpen(true)} aria-label="Open cart" className="relative hover:text-primary transition-colors">
             <ShoppingBag size={22} />
+            {quantity > 0 && (
+              <div className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs text-white">
+                {quantity}
+              </div>
+            )}
           </button>
           </div>
           {/* Mobile Menu Component */}
